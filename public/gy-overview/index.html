@@ -342,7 +342,40 @@ a{text-decoration:none;color:inherit}
     </div>
   </div>
 
-  <!-- PAGE 7: Calendar / Personnel Planner -->
+  <!-- PAGE 7: Quote Log -->
+  <div class="page" id="page-quotelog">
+    <div class="content">
+      <div class="filter-bar">
+        <label for="f-ql-year">Year</label>
+        <select class="filter-select" id="f-ql-year"><option value="">All</option><option>2025</option><option>2026</option></select>
+        <label for="f-ql-month">Month</label>
+        <select class="filter-select" id="f-ql-month"><option value="">All</option><option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option>Jun</option><option>Jul</option><option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option></select>
+        <label for="f-ql-status">Status</label>
+        <select class="filter-select" id="f-ql-status"><option value="">All</option><option>Won</option><option>Sent</option><option>In Progress</option><option>Lost</option><option>Pending</option></select>
+      </div>
+      <!-- T2: KPI Scorecard with Targets -->
+      <div class="chart-card" style="margin-bottom:20px">
+        <h3>KPI Scorecard — Actual vs Target 2026</h3>
+        <div class="table-scroll" id="tbl-kpi-scorecard"></div>
+      </div>
+      <!-- T1: Combo chart: # Quotes vs Cost + Revenue % + Budget target line -->
+      <div class="chart-grid cols-2-1">
+        <div class="chart-card"><h3>Quotations vs Cost &amp; Revenue %</h3><div class="chart-area tall" id="ch-ql-combo"></div></div>
+        <div class="chart-card"><h3>Quotes by Status</h3><div class="chart-area tall" id="ch-ql-status"></div></div>
+      </div>
+      <!-- T4: Budget vs Forecast difference -->
+      <div class="chart-grid cols-1">
+        <div class="chart-card"><h3>Budget Revenue vs Forecast Backlog — Variance %</h3><div class="chart-area short" id="ch-ql-variance"></div></div>
+      </div>
+      <!-- T5: Summary Table -->
+      <div class="chart-card">
+        <h3>Quote Summary by Status</h3>
+        <div class="table-scroll" id="tbl-ql-summary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 8: Calendar / Personnel Planner -->
   <div class="page" id="page-calendar">
     <div class="content">
       <div class="filter-bar">
@@ -365,7 +398,7 @@ a{text-decoration:none;color:inherit}
     </div>
   </div>
 
-  <!-- PAGE 8: Equipment Planner -->
+  <!-- PAGE 9: Equipment Planner -->
   <div class="page" id="page-eqplan">
     <div class="content">
       <div class="filter-bar">
@@ -380,6 +413,34 @@ a{text-decoration:none;color:inherit}
         <h3 style="margin-bottom:16px;font-size:14px;font-weight:600">Equipment Planner</h3>
         <div id="gantt-equipment"></div>
       </div>
+      <div class="sm-grid" id="sm-eqplan"></div>
+      <div class="chart-grid cols-2">
+        <div class="chart-card"><h3>Equipment by Client</h3><div class="table-scroll" id="tbl-eq-client"></div></div>
+        <div class="chart-card"><h3>Equipment by Installation</h3><div class="table-scroll" id="tbl-eq-install"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 10: Material Tracker -->
+  <div class="page" id="page-materials">
+    <div class="content">
+      <div class="filter-bar">
+        <label for="f-mat-year">Year</label>
+        <select class="filter-select" id="f-mat-year"><option value="">All</option><option>2026</option><option>2025</option></select>
+        <label for="f-mat-month">Month</label>
+        <select class="filter-select" id="f-mat-month"><option value="">All</option><option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option>Jun</option><option>Jul</option><option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option></select>
+        <label for="f-mat-status">Status</label>
+        <select class="filter-select" id="f-mat-status"><option value="">All</option><option>In Transit</option><option>On Site</option><option>Returned</option><option>Consumed</option><option>Pending Delivery</option></select>
+      </div>
+      <div class="gantt-container">
+        <h3 style="margin-bottom:16px;font-size:14px;font-weight:600">Material Planner</h3>
+        <div id="gantt-materials"></div>
+      </div>
+      <div class="sm-grid" id="sm-materials"></div>
+      <div class="chart-grid cols-2">
+        <div class="chart-card"><h3>Materials by Installation</h3><div class="table-scroll" id="tbl-mat-install"></div></div>
+        <div class="chart-card"><h3>Materials by Type</h3><div class="chart-area" id="ch-mat-type"></div></div>
+      </div>
     </div>
   </div>
 
@@ -392,6 +453,8 @@ const COLORS = ['#8BC7F7','#46B3F3','#009FEF','#0078ED','#0050EB','#0641C8','#0B
 const charts = {};
 let currentPage = 'overview';
 
+const MAT_STATUS_COLORS = { 'In Transit':'#0078ED', 'On Site':'#009FEF', 'Returned':'#0641C8', 'Consumed':'#46647C', 'Pending Delivery':'#8BC7F7' };
+
 const NAV = [
   { id:'overview', label:'GY Overview', icon:'<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/>' },
   { id:'equipment', label:'Equipment', badge:26, icon:'<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>' },
@@ -399,8 +462,10 @@ const NAV = [
   { id:'backlog', label:'Order Backlog', icon:'<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>' },
   { id:'rfq', label:'RFQ Tracker', icon:'<path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' },
   { id:'openrfq', label:'Open RFQ', icon:'<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>' },
+  { id:'quotelog', label:'Quote Log', icon:'<path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>' },
   { id:'calendar', label:'Personnel Plan', icon:'<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>' },
-  { id:'eqplan', label:'Equipment Plan', icon:'<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>' }
+  { id:'eqplan', label:'Equipment Plan', icon:'<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>' },
+  { id:'materials', label:'Material Tracker', icon:'<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>' }
 ];
 
 // ========== DEMO DATA ==========
@@ -415,11 +480,13 @@ const DEMO = {
   technicians: ['J. Hansen','M. Olsen','K. Berg','T. Larsen','A. Nilsen','P. Andersen','R. Johansen','S. Pedersen','L. Eriksen','E. Dahl'],
   installations: ['Johan Sverdrup','Troll A','Gullfaks','Oseberg','Snorre','Heidrun','Åsgard','Draugen'],
   products: ['Rope Access','NDT','Structural Integrity','Mechanical','Electrical','Subsea IMR'],
-  segments: ['Oil & Gas','Renewables','Maritime','Infrastructure']
+  segments: ['Oil & Gas','Renewables','Maritime','Infrastructure'],
+  materialTypes: ['NDT Probes','Lifting Slings','Welding Rods','Scaffolding','Safety Harness','Calibration Kits','Pipe Fittings','Abrasive Blasting Media'],
+  materialStatuses: ['In Transit','On Site','Returned','Consumed','Pending Delivery']
 };
 
 // Raw data stores for filtering
-const DATA = { rfq:[], openrfq:[], backlog:[], calendar:[], eqplan:[] };
+const DATA = { rfq:[], openrfq:[], backlog:[], calendar:[], eqplan:[], quotelog:[], materials:[] };
 
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 function randF(min,max){return +(Math.random()*(max-min)+min).toFixed(1)}
@@ -649,8 +716,10 @@ function renderPage(pageId) {
     case 'backlog': renderBacklog(); break;
     case 'rfq': renderRFQ(); break;
     case 'openrfq': renderOpenRFQ(); break;
+    case 'quotelog': renderQuoteLog(); break;
     case 'calendar': renderCalendar(); break;
     case 'eqplan': renderEqPlan(); break;
+    case 'materials': renderMaterials(); break;
   }
 }
 
@@ -996,7 +1065,187 @@ function renderOpenRFQ() {
   buildTable('tbl-openrfq', ['Job','Title','Product','Client Ref','Segment','Responsible','Customer','Installation','Status','Quote Date','Sum Total','Cost Total','CMR'], rows, 'Open RFQs');
 }
 
-// --- PAGE 7: Calendar / Personnel (with filters) ---
+// --- PAGE 7: Quote Log (with filters) ---
+function generateQuoteLogData() {
+  if (DATA.quotelog.length > 0) return DATA.quotelog;
+  for (let i = 0; i < 40; i++) {
+    const m = rand(1,12), yr = pick(['2025','2026']);
+    const sumTotal = rand(100000, 3000000);
+    const costTotal = rand(50000, Math.round(sumTotal * 0.85));
+    DATA.quotelog.push({
+      id: 'Q-' + rand(1000,9999),
+      title: pick(DEMO.installations) + ' - ' + pick(DEMO.services),
+      customer: pick(DEMO.clients),
+      status: pick(DEMO.bdStatus),
+      product: pick(DEMO.products),
+      year: yr,
+      month: m,
+      monthName: DEMO.months[m-1],
+      sumTotal: sumTotal,
+      costTotal: costTotal,
+      cmTotal: sumTotal - costTotal,
+      cmrPct: +((1 - costTotal/sumTotal)*100).toFixed(1)
+    });
+  }
+  return DATA.quotelog;
+}
+
+function renderQuoteLog() {
+  const data = generateQuoteLogData();
+  const fYear = getFilterVal('f-ql-year');
+  const fMonth = getFilterVal('f-ql-month');
+  const fStatus = getFilterVal('f-ql-status');
+  const filtered = data.filter(r => {
+    if (fYear && r.year !== fYear) return false;
+    if (fMonth && r.monthName !== fMonth) return false;
+    if (fStatus && r.status !== fStatus) return false;
+    return true;
+  });
+
+  // T2: KPI Scorecard with targets
+  const actuals = {
+    sumTotal: filtered.reduce((s,r) => s + r.sumTotal, 0),
+    costTotal: filtered.reduce((s,r) => s + r.costTotal, 0),
+    cmTotal: filtered.reduce((s,r) => s + r.cmTotal, 0),
+    cmrPct: 0
+  };
+  actuals.cmrPct = actuals.sumTotal > 0 ? +((1 - actuals.costTotal/actuals.sumTotal)*100).toFixed(1) : 0;
+
+  const targets = { sumTotal:550000000/12*filtered.length||550000000, costTotal:350000000/12*filtered.length||350000000, cmTotal:200000000/12*filtered.length||200000000, cmrPct:45.0 };
+  // Simplify targets to annual
+  const tAnnual = { sumTotal:550000000, costTotal:350000000, cmTotal:200000000, cmrPct:45.0 };
+  const scoreRows = [
+    ['Sum Total', fmtCur(actuals.sumTotal), fmtCur(tAnnual.sumTotal), fmtCur(actuals.sumTotal - tAnnual.sumTotal), ((actuals.sumTotal - tAnnual.sumTotal)/tAnnual.sumTotal*100).toFixed(1)+'%'],
+    ['Cost Sum Total', fmtCur(actuals.costTotal), fmtCur(tAnnual.costTotal), fmtCur(actuals.costTotal - tAnnual.costTotal), ((actuals.costTotal - tAnnual.costTotal)/tAnnual.costTotal*100).toFixed(1)+'%'],
+    ['CM Total', fmtCur(actuals.cmTotal), fmtCur(tAnnual.cmTotal), fmtCur(actuals.cmTotal - tAnnual.cmTotal), ((actuals.cmTotal - tAnnual.cmTotal)/tAnnual.cmTotal*100).toFixed(1)+'%'],
+    ['CMR %', actuals.cmrPct+'%', tAnnual.cmrPct+'%', (actuals.cmrPct - tAnnual.cmrPct).toFixed(1)+'%', '--']
+  ];
+  // Color the variance cells
+  const coloredRows = scoreRows.map(r => {
+    const variance = parseFloat(r[3]);
+    // For cost, negative is good (under budget); for revenue/CM, positive is good
+    const isGood = r[0].includes('Cost') ? variance <= 0 : variance >= 0;
+    const color = isGood ? '#166534' : '#991b1b';
+    const bg = isGood ? '#dcfce7' : '#fef2f2';
+    r[3] = `<span style="color:${color};background:${bg};padding:2px 8px;border-radius:6px;font-weight:600">${r[3]}</span>`;
+    r[4] = r[4] !== '--' ? `<span style="color:${color};font-weight:600">${r[4]}</span>` : r[4];
+    return r;
+  });
+  buildTable('tbl-kpi-scorecard', ['KPI','Actual','Target 2026','Variance','%'], coloredRows, 'KPI Scorecard');
+
+  // T1: Combo chart - # quotes vs cost by month + revenue %
+  const monthlyData = {};
+  DEMO.months.forEach(m => monthlyData[m] = { count:0, sumTotal:0, costTotal:0 });
+  filtered.forEach(r => {
+    const m = r.monthName;
+    if (monthlyData[m]) {
+      monthlyData[m].count++;
+      monthlyData[m].sumTotal += r.sumTotal;
+      monthlyData[m].costTotal += r.costTotal;
+    }
+  });
+  const mKeys = DEMO.months;
+  const quoteCounts = mKeys.map(m => monthlyData[m].count);
+  const costTotals = mKeys.map(m => monthlyData[m].costTotal);
+  const revPcts = mKeys.map(m => monthlyData[m].sumTotal > 0 ? +((1 - monthlyData[m].costTotal/monthlyData[m].sumTotal)*100).toFixed(1) : 0);
+
+  // T3+T4: Budget revenue target (annual / 12 per month)
+  const budgetRevPerMonth = Math.round(550000000 / 12);
+
+  mk('ch-ql-combo', {
+    chart: { type:'bar', height:380 },
+    series: [
+      { name:'# Quotes', type:'column', data:quoteCounts },
+      { name:'Cost Total', type:'column', data:costTotals },
+      { name:'Revenue %', type:'line', data:revPcts }
+    ],
+    colors: [COLORS[0], COLORS[6], '#F97316'],
+    plotOptions: { bar: { borderRadius:4, columnWidth:'45%' } },
+    dataLabels: { enabled:false },
+    xaxis: { categories:mKeys },
+    yaxis: [
+      { title:{ text:'# Quotes / Cost (NOK)' }, labels:{ formatter:v=>fmt(v) } },
+      { opposite:true, title:{ text:'Revenue %' }, labels:{ formatter:v=>v+'%' }, min:0, max:80 }
+    ],
+    stroke: { width:[0,0,3] },
+    legend: { position:'top', fontSize:'12px' },
+    annotations: {
+      yaxis: [{
+        y: budgetRevPerMonth,
+        borderColor: '#dc2626',
+        strokeDashArray: 4,
+        label: { text: 'Budget Target: ' + fmt(budgetRevPerMonth) + ' NOK/mo', style: { color:'#fff', background:'#dc2626', fontSize:'11px', padding:{ left:6, right:6, top:2, bottom:2 } }, position:'left' }
+      }]
+    }
+  });
+
+  // Status donut
+  const statusCounts = {};
+  filtered.forEach(r => { statusCounts[r.status] = (statusCounts[r.status]||0) + 1; });
+  const sLabels = Object.keys(statusCounts);
+  const sValues = Object.values(statusCounts);
+  mk('ch-ql-status', {
+    chart: { type:'donut', height:380 },
+    series: sValues.length > 0 ? sValues : [1],
+    labels: sLabels.length > 0 ? sLabels : ['No data'],
+    colors: COLORS.slice(0, sLabels.length || 1),
+    plotOptions: { pie: { donut: { size:'72%', labels: { show:true, name:{ fontSize:'13px' }, value:{ fontSize:'22px', fontWeight:700 }, total:{ show:true, label:'Total Quotes', fontSize:'12px' } } } } },
+    dataLabels: { enabled:false },
+    legend: { position:'bottom', fontSize:'12px' },
+    stroke: { width:2, colors:[getCardColor()] }
+  });
+
+  // T4: Budget vs Forecast Variance chart
+  const forecastPerMonth = mKeys.map(m => monthlyData[m].sumTotal);
+  const variancePct = forecastPerMonth.map(f => f > 0 ? +((f - budgetRevPerMonth)/budgetRevPerMonth*100).toFixed(1) : 0);
+  mk('ch-ql-variance', {
+    chart: { type:'bar', height:220 },
+    series: [{ name:'Variance %', data:variancePct }],
+    colors: variancePct.map(v => v >= 0 ? '#16a34a' : '#dc2626'),
+    plotOptions: { bar: { borderRadius:4, columnWidth:'50%', distributed:true, colors: { ranges: [{ from:-999, to:0, color:'#dc2626' },{ from:0, to:999, color:'#16a34a' }] } } },
+    dataLabels: { enabled:true, formatter:v=>v+'%', style:{ fontSize:'11px', fontWeight:600 } },
+    xaxis: { categories:mKeys },
+    yaxis: { labels:{ formatter:v=>v+'%' } },
+    legend: { show:false },
+    annotations: { yaxis:[{ y:0, borderColor:'#6b7280', strokeDashArray:0 }] }
+  });
+
+  // T5: Summary table by status
+  const summaryMap = {};
+  filtered.forEach(r => {
+    if (!summaryMap[r.status]) summaryMap[r.status] = { count:0, sumTotal:0, costTotal:0, cmTotal:0 };
+    summaryMap[r.status].count++;
+    summaryMap[r.status].sumTotal += r.sumTotal;
+    summaryMap[r.status].costTotal += r.costTotal;
+    summaryMap[r.status].cmTotal += r.cmTotal;
+  });
+  const totalQuotes = filtered.length;
+  const summaryRows = Object.entries(summaryMap).map(([status, d]) => [
+    badge(status),
+    d.count,
+    fmtCur(d.sumTotal),
+    fmtCur(d.costTotal),
+    fmtCur(d.cmTotal),
+    d.sumTotal > 0 ? ((1-d.costTotal/d.sumTotal)*100).toFixed(1)+'%' : '0%',
+    totalQuotes > 0 ? (d.count/totalQuotes*100).toFixed(1)+'%' : '0%'
+  ]);
+  // Add totals row
+  const totalSum = filtered.reduce((s,r)=>s+r.sumTotal,0);
+  const totalCost = filtered.reduce((s,r)=>s+r.costTotal,0);
+  const totalCM = filtered.reduce((s,r)=>s+r.cmTotal,0);
+  summaryRows.push([
+    '<strong>TOTAL</strong>',
+    '<strong>'+totalQuotes+'</strong>',
+    '<strong>'+fmtCur(totalSum)+'</strong>',
+    '<strong>'+fmtCur(totalCost)+'</strong>',
+    '<strong>'+fmtCur(totalCM)+'</strong>',
+    '<strong>'+(totalSum>0?((1-totalCost/totalSum)*100).toFixed(1)+'%':'0%')+'</strong>',
+    '<strong>100%</strong>'
+  ]);
+  buildTable('tbl-ql-summary', ['Status','# Quotes','Sum Total','Cost Total','CM Total','CMR %','Hit Rate'], summaryRows, 'Quote Summary by Status');
+}
+
+// --- PAGE 8: Calendar / Personnel (with filters) ---
 function generateCalendarData() {
   if (DATA.calendar.length > 0) return DATA.calendar;
   DEMO.technicians.forEach(t => {
@@ -1048,7 +1297,7 @@ function renderCalendar() {
   buildTable('tbl-res-install', ['Active Technicians','Installation'], resInstRows, 'Resources assigned to Installation');
 }
 
-// --- PAGE 8: Equipment Planner (with filters) ---
+// --- PAGE 9: Equipment Planner (with filters) ---
 function generateEqPlanData() {
   if (DATA.eqplan.length > 0) return DATA.eqplan;
   for (let i = 0; i < 12; i++) {
@@ -1078,6 +1327,118 @@ function renderEqPlan() {
   });
 
   buildGantt('gantt-equipment', filtered);
+
+  // T6: Small Multiples (matching Personnel Planner layout)
+  const eqTypes = ['NDT Equipment','Rope Access Gear','Lifting Equipment'];
+  const smEq = document.getElementById('sm-eqplan');
+  if (smEq) {
+    let smHtml = '';
+    eqTypes.forEach(t => { smHtml += '<div class="sm-card"><div class="sm-label">Days Deployed</div><div class="sm-type">'+t+'</div><div class="sm-value">'+rand(30,180)+'</div><div class="sm-sub">Total this period</div></div>'; });
+    eqTypes.forEach(t => { smHtml += '<div class="sm-card"><div class="sm-label">Utilization %</div><div class="sm-type">'+t+'</div><div class="sm-value">'+randF(45,92)+'%</div><div class="sm-sub">Capacity used</div></div>'; });
+    eqTypes.forEach(t => { smHtml += '<div class="sm-card"><div class="sm-label">Active Units</div><div class="sm-type">'+t+'</div><div class="sm-value">'+rand(3,12)+'</div><div class="sm-sub">Currently deployed</div></div>'; });
+    smEq.innerHTML = smHtml;
+  }
+
+  // Resource tables
+  const eqClientRows = DEMO.clients.slice(0,5).map(c => [rand(1,6), c]);
+  buildTable('tbl-eq-client', ['Active Equipment','Client'], eqClientRows, 'Equipment by Client');
+  const eqInstRows = DEMO.installations.slice(0,5).map(inst => [rand(1,4), inst]);
+  buildTable('tbl-eq-install', ['Active Equipment','Installation'], eqInstRows, 'Equipment by Installation');
+}
+
+// --- PAGE 10: Material Tracker (with filters) ---
+function generateMaterialData() {
+  if (DATA.materials.length > 0) return DATA.materials;
+  for (let i = 0; i < 16; i++) {
+    const s = rand(0, 50);
+    DATA.materials.push({
+      label: pick(DEMO.materialTypes) + ' #' + rand(100,999),
+      start: s,
+      width: Math.min(rand(8, 35), 100 - s),
+      scope: pick(DEMO.installations),
+      status: pick(DEMO.materialStatuses),
+      type: pick(DEMO.materialTypes),
+      installation: pick(DEMO.installations),
+      month: rand(1,12),
+      year: pick(['2025','2026']),
+      qty: rand(5, 200)
+    });
+  }
+  return DATA.materials;
+}
+
+function renderMaterials() {
+  const data = generateMaterialData();
+  const fYear = getFilterVal('f-mat-year');
+  const fMonth = getFilterVal('f-mat-month');
+  const fStatus = getFilterVal('f-mat-status');
+  const filtered = data.filter(r => {
+    if (fYear && r.year !== fYear) return false;
+    if (fMonth && DEMO.months[r.month-1] !== fMonth) return false;
+    if (fStatus && r.status !== fStatus) return false;
+    return true;
+  });
+
+  // Override STATUS_COLORS temporarily for material gantt
+  const origColors = {...STATUS_COLORS};
+  Object.assign(STATUS_COLORS, MAT_STATUS_COLORS);
+  buildGantt('gantt-materials', filtered);
+  // Restore
+  Object.keys(MAT_STATUS_COLORS).forEach(k => { if(!origColors[k]) delete STATUS_COLORS[k]; });
+  Object.assign(STATUS_COLORS, origColors);
+
+  // Re-render gantt with correct material colors
+  const el = document.getElementById('gantt-materials');
+  if (el) {
+    const ganttMonths = DEMO.months;
+    let html = '<div class="gantt-header"><div class="gantt-header-months">';
+    ganttMonths.forEach(m => html += '<span>'+m+'</span>');
+    html += '</div></div>';
+    if (filtered.length === 0) {
+      html += '<div class="empty-state"><p>No materials match the selected filters</p></div>';
+    }
+    filtered.forEach(item => {
+      const color = MAT_STATUS_COLORS[item.status] || '#009FEF';
+      const cw = Math.min(item.width, 100 - item.start);
+      html += '<div class="gantt-bar-row"><div class="gantt-label" title="'+item.label+'">'+item.label+'</div><div class="gantt-track"><div class="gantt-fill" style="left:'+item.start+'%;width:'+cw+'%;background:'+color+'" title="'+item.status+': '+item.scope+'">'+item.scope+'</div></div></div>';
+    });
+    html += '<div class="gantt-legend">';
+    Object.entries(MAT_STATUS_COLORS).forEach(([s,c]) => {
+      html += '<div class="gantt-legend-item"><div class="dot" style="background:'+c+'"></div>'+s+'</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // Small multiples
+  const smEl = document.getElementById('sm-materials');
+  const types = ['NDT Probes','Lifting Slings','Scaffolding'];
+  let smHtml = '';
+  types.forEach(t => { smHtml += '<div class="sm-card"><div class="sm-label">Total Items</div><div class="sm-type">'+t+'</div><div class="sm-value">'+rand(20,150)+'</div><div class="sm-sub">In inventory</div></div>'; });
+  types.forEach(t => { smHtml += '<div class="sm-card"><div class="sm-label">On Site %</div><div class="sm-type">'+t+'</div><div class="sm-value">'+randF(40,90)+'%</div><div class="sm-sub">Currently deployed</div></div>'; });
+  types.forEach(t => { smHtml += '<div class="sm-card"><div class="sm-label">Pending Delivery</div><div class="sm-type">'+t+'</div><div class="sm-value">'+rand(2,15)+'</div><div class="sm-sub">Expected this month</div></div>'; });
+  smEl.innerHTML = smHtml;
+
+  // Table: Materials by Installation
+  const instMap = {};
+  filtered.forEach(r => { instMap[r.installation] = (instMap[r.installation]||0) + 1; });
+  const instRows = Object.entries(instMap).sort((a,b)=>b[1]-a[1]).map(([inst,count]) => [count, inst]);
+  buildTable('tbl-mat-install', ['# Materials','Installation'], instRows, 'Materials by Installation');
+
+  // Chart: Materials by Type
+  const typeMap = {};
+  filtered.forEach(r => { typeMap[r.type] = (typeMap[r.type]||0) + 1; });
+  const typeLabels = Object.keys(typeMap);
+  const typeValues = Object.values(typeMap);
+  mk('ch-mat-type', {
+    chart: { type:'bar', height:280 },
+    series: [{ data:typeValues }],
+    plotOptions: { bar: { horizontal:true, borderRadius:6, barHeight:'60%', distributed:true } },
+    colors: COLORS.slice(0, typeLabels.length),
+    dataLabels: { enabled:true, style:{ fontSize:'11px', fontWeight:600 } },
+    xaxis: { categories:typeLabels },
+    legend: { show:false }
+  });
 }
 
 // ========== INIT ==========
@@ -1108,6 +1469,12 @@ function renderEqPlan() {
   wireFilter('f-eqp-year','eqplan');
   wireFilter('f-eqp-month','eqplan');
   wireFilter('f-eqp-week','eqplan');
+  wireFilter('f-ql-year','quotelog');
+  wireFilter('f-ql-month','quotelog');
+  wireFilter('f-ql-status','quotelog');
+  wireFilter('f-mat-year','materials');
+  wireFilter('f-mat-month','materials');
+  wireFilter('f-mat-status','materials');
 })();
 </script>
 </body>
