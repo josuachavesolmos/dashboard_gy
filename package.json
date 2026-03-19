@@ -1,30 +1,19 @@
 {
-  "name": "axess-dashboard",
+  "name": "axess-gy",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "start": "vite"
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:headed": "npx playwright test --headed",
+    "test:report": "npx playwright show-report test-results/html-report"
   },
-  "dependencies": {
-    "@azure/msal-browser": "^3.27.0",
-    "@azure/msal-react": "^2.1.1",
-    "@microsoft/microsoft-graph-client": "^3.0.7",
-    "@microsoft/teams-js": "^2.31.1",
-    "apexcharts": "^4.3.0",
-    "react": "^18.3.1",
-    "react-apexcharts": "^1.7.0",
-    "react-dom": "^18.3.1",
-    "xlsx": "^0.18.5"
-  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "~5.6.2",
-    "vite": "^6.0.1"
+    "@playwright/test": "^1.58.2"
   }
 }

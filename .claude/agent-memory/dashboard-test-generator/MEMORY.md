@@ -1,0 +1,1 @@
+- [project_dashboard_testing.md](project_dashboard_testing.md) — Two dashboards in project: dashboard.html (Chart.js + Playwright tests) and Axess_GY_Dashboard.html (ApexCharts SPA, 14 filter bugs found in comprehensive audit 2026-03-17)

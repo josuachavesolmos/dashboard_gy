@@ -1,0 +1,14 @@
+[
+  { "Month": "Jan", "Variance": 175, "Budget Rev": 387192.00, "Forecast Order Backlog": 675732.40 },
+  { "Month": "Feb", "Variance": 104, "Budget Rev": 647192.00, "Forecast Order Backlog": 674469.00 },
+  { "Month": "Mar", "Variance": 34,  "Budget Rev": 759375.00, "Forecast Order Backlog": 258334.99 },
+  { "Month": "Apr", "Variance": 17,  "Budget Rev": 889375.00, "Forecast Order Backlog": 149681.78 },
+  { "Month": "May", "Variance": 30,  "Budget Rev": 927263.00, "Forecast Order Backlog": 279993.09 },
+  { "Month": "Jun", "Variance": 98,  "Budget Rev": 969462.00, "Forecast Order Backlog": 954512.40 },
+  { "Month": "Jul", "Variance": 69,  "Budget Rev": 468279.00, "Forecast Order Backlog": 322726.40 },
+  { "Month": "Aug", "Variance": 39,  "Budget Rev": 382962.00, "Forecast Order Backlog": 149960.40 },
+  { "Month": "Sep", "Variance": 49,  "Budget Rev": 306435.00, "Forecast Order Backlog": 149960.40 },
+  { "Month": "Oct", "Variance": 42,  "Budget Rev": 356435.00, "Forecast Order Backlog": 149960.40 },
+  { "Month": "Nov", "Variance": 22,  "Budget Rev": 678434.00, "Forecast Order Backlog": 149960.40 },
+  { "Month": "Dec", "Variance": 87,  "Budget Rev": 893552.00, "Forecast Order Backlog": 777710.40 }
+]

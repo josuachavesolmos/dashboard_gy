@@ -1,12 +1,5 @@
 node_modules/
-build/
-dist/
-.localConfigs
-env/.env.*.user
-env/.env.local
-appPackage/build/
-*.local
-.env
-.env.local
 .DS_Store
-.venv/
+test-results/
+*.pbix
+*.png

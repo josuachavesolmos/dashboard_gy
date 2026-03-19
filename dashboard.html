@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axess Group — Operations Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" onerror="document.body.innerHTML='<div style=\'padding:40px;font-family:sans-serif\'><h2>Failed to load SheetJS library</h2><p>Check internet connection and reload.</p></div>'"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" onerror="document.body.innerHTML='<div style=\'padding:40px;font-family:sans-serif\'><h2>Failed to load Chart.js library</h2><p>Check internet connection and reload.</p></div>'"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,300;0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,300&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN TOKENS — Axess Group Brand
+   ═══════════════════════════════════════════════════ */
+:root {
+  /* Core brand */
+  --ax-teal: #1a4548;
+  --ax-teal-90: #1e5255;
+  --ax-teal-70: #2d7a7f;
+  --ax-teal-50: #4aacb0;
+  --ax-teal-20: #c4e4e6;
+  --ax-teal-10: #e6f3f4;
+  --ax-peach: #ffe2c7;
+  --ax-peach-deep: #f4a261;
+  --ax-nav: #364546;
+
+  /* Functional */
+  --ax-success: #00d084;
+  --ax-warning: #f59e42;
+  --ax-danger: #e76f51;
+  --ax-info: #0693e3;
+
+  /* Neutrals */
+  --ax-white: #ffffff;
+  --ax-gray-50: #f8f7f5;
+  --ax-gray-100: #f1efec;
+  --ax-gray-200: #e5e2dd;
+  --ax-gray-300: #d1cdc6;
+  --ax-gray-500: #8a8580;
+  --ax-gray-700: #4a4643;
+  --ax-gray-900: #1a1917;
+
+  /* Surfaces */
+  --surface-bg: var(--ax-gray-50);
+  --surface-card: var(--ax-white);
+  --surface-elevated: var(--ax-white);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(26,69,72,0.04);
+  --shadow-md: 0 2px 8px rgba(26,69,72,0.06), 0 1px 2px rgba(26,69,72,0.04);
+  --shadow-lg: 0 4px 24px rgba(26,69,72,0.08), 0 2px 4px rgba(26,69,72,0.04);
+  --shadow-xl: 0 8px 40px rgba(26,69,72,0.1), 0 2px 8px rgba(26,69,72,0.05);
+
+  /* Chart palette — 12 distinct hues */
+  --c1: #1a4548; --c2: #2a9d8f; --c3: #f59e42; --c4: #e76f51;
+  --c5: #0693e3; --c6: #e9c46a; --c7: #264653; --c8: #00d084;
+  --c9: #f4a261; --c10: #4aacb0; --c11: #9b51e0; --c12: #f78da7;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--surface-bg);
+  color: var(--ax-gray-900);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════ */
+.header {
+  background: linear-gradient(135deg, var(--ax-teal) 0%, var(--ax-nav) 100%);
+  padding: 0 clamp(16px, 3vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,226,199,0.3), transparent);
+}
+
+.header-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.header-brand h1 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  color: var(--ax-white);
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.header-brand .divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,0.18);
+  align-self: center;
+}
+
+.header-brand span {
+  color: var(--ax-peach);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.upload-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+}
+
+.upload-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.upload-btn:focus-visible { outline: 2px solid var(--ax-peach); outline-offset: 2px; }
+
+.upload-btn.loaded {
+  background: rgba(0,208,132,0.15);
+  border-color: rgba(0,208,132,0.3);
+  color: #fff;
+}
+
+.upload-btn .indicator {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  transition: all 0.3s ease-out;
+}
+
+.upload-btn.loaded .indicator { background: var(--ax-success); box-shadow: 0 0 6px rgba(0,208,132,0.5); }
+.upload-btn.processing .indicator { background: var(--ax-warning); animation: pulse-dot 1s infinite; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+.upload-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ═══════════════════════════════════════════════════
+   TAB BAR
+   ═══════════════════════════════════════════════════ */
+.tab-bar {
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--ax-gray-200);
+  padding: 0 clamp(16px, 3vw, 40px);
+  display: flex;
+  gap: 0;
+  position: sticky;
+  top: 60px;
+  z-index: 99;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 13px 20px 11px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ax-gray-500);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease-out;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.tab-btn:hover { color: var(--ax-gray-700); }
+.tab-btn:focus-visible { outline: 2px solid var(--ax-teal-50); outline-offset: -2px; }
+
+.tab-btn.active {
+  color: var(--ax-teal);
+  border-bottom-color: var(--ax-teal);
+  font-weight: 600;
+}
+
+.tab-btn .count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--ax-gray-100);
+  color: var(--ax-gray-500);
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 6px;
+  transition: all 0.2s;
+}
+
+.tab-btn.active .count { background: var(--ax-teal-10); color: var(--ax-teal); }
+
+/* ═══════════════════════════════════════════════════
+   MAIN LAYOUT
+   ═══════════════════════════════════════════════════ */
+.main {
+  padding: 20px clamp(16px, 3vw, 40px) 60px;
+  max-width: 1560px;
+  margin: 0 auto;
+}
+
+.tab-content { display: none; animation: revealUp 0.3s ease-out; }
+.tab-content.active { display: block; }
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════════════ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 14px;
+  color: var(--ax-gray-500);
+}
+
+.empty-state .icon-wrap {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ax-teal-10), var(--ax-peach));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ax-teal);
+}
+
+.empty-state h3 {
+  font-family: 'Source Serif 4', serif;
+  font-size: 22px;
+  color: var(--ax-gray-900);
+  font-weight: 400;
+}
+
+.empty-state p {
+  font-size: 13px;
+  max-width: 380px;
+  text-align: center;
+  line-height: 1.7;
+  color: var(--ax-gray-500);
+}
+
+/* ═══════════════════════════════════════════════════
+   FILTERS
+   ═══════════════════════════════════════════════════ */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--ax-gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.filters-bar label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ax-gray-500);
+  margin-left: 6px;
+}
+
+.filter-select, .filter-date {
+  padding: 5px 8px;
+  border: 1px solid var(--ax-gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  background: var(--ax-white);
+  color: var(--ax-gray-900);
+  min-width: 120px;
+  cursor: pointer;
+  transition: border-color 0.15s ease-out;
+  -webkit-appearance: none;
+}
+
+.filter-select:focus, .filter-date:focus {
+  outline: none;
+  border-color: var(--ax-teal-50);
+  box-shadow: 0 0 0 3px var(--ax-teal-10);
+}
+
+.filter-reset {
+  background: none;
+  border: 1px solid var(--ax-gray-200);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  font-size: 10.5px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--ax-danger);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.15s ease-out;
+  margin-left: auto;
+}
+
+.filter-reset:hover { background: var(--ax-danger); color: #fff; border-color: var(--ax-danger); }
+.filter-reset:focus-visible { outline: 2px solid var(--ax-danger); outline-offset: 2px; }
+
+/* ═══════════════════════════════════════════════════
+   KPI CARDS
+   ═══════════════════════════════════════════════════ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.kpi-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--ax-gray-200);
+  transition: all 0.2s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--ax-teal);
+  opacity: 0.8;
+}
+
+.kpi-card:nth-child(2)::after { background: var(--ax-success); }
+.kpi-card:nth-child(3)::after { background: var(--ax-warning); }
+.kpi-card:nth-child(4)::after { background: var(--ax-info); }
+.kpi-card:nth-child(5)::after { background: var(--ax-peach-deep); }
+
+.kpi-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+
+.kpi-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ax-gray-500);
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ax-gray-900);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--ax-gray-500);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+/* ═══════════════════════════════════════════════════
+   CHART GRID
+   ═══════════════════════════════════════════════════ */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.chart-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--ax-gray-200);
+  transition: box-shadow 0.2s ease-out;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-card:hover { box-shadow: var(--shadow-lg); }
+.chart-card.wide { grid-column: span 2; }
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.chart-header h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ax-gray-900);
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-header .tag {
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--ax-teal-10);
+  color: var(--ax-teal);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.chart-header .chart-total {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ax-gray-500);
+}
+
+.chart-wrap {
+  flex: 1;
+  position: relative;
+  min-height: 260px;
+}
+
+.chart-wrap canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+
+/* ═══════════════════════════════════════════════════
+   A11Y & MOTION
+   ═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ax-gray-300); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ax-gray-500); }
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .kpi-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 1024px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .chart-card.wide { grid-column: span 1; }
+}
+
+@media (max-width: 768px) {
+  .header-actions { display: none; }
+  .main { padding: 12px 16px 40px; }
+  .tab-bar { padding: 0 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .filters-bar { gap: 4px; padding: 8px 10px; }
+  .filter-select, .filter-date { min-width: 100px; font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-row { grid-template-columns: 1fr; }
+  .kpi-value { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="header">
+  <div class="header-brand">
+    <h1>AXESS</h1>
+    <div class="divider"></div>
+    <span>Operations Dashboard</span>
+  </div>
+  <div class="header-actions" role="toolbar" aria-label="File uploads">
+    <label class="upload-btn" id="uploadQuote">
+      <span class="indicator"></span> Quote Log
+      <input type="file" accept=".xlsx,.xls" onchange="handleFile(event,'quote')" aria-label="Upload Quote Log file">
+    </label>
+    <label class="upload-btn" id="uploadPersonnel">
+      <span class="indicator"></span> Personnel
+      <input type="file" accept=".xlsx,.xls" onchange="handleFile(event,'personnel')" aria-label="Upload Personnel Planner file">
+    </label>
+    <label class="upload-btn" id="uploadMaster">
+      <span class="indicator"></span> Master Project
+      <input type="file" accept=".xlsx,.xls" onchange="handleFile(event,'master')" aria-label="Upload Master Project file">
+    </label>
+  </div>
+</header>
+
+<!-- ═══════════ TAB BAR ═══════════ -->
+<nav class="tab-bar" role="tablist" aria-label="Dashboard sections">
+  <button class="tab-btn active" role="tab" aria-selected="true" data-tab="quote" onclick="switchTab('quote',this)">Quote Log <span class="count" id="count-quote">—</span></button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="personnel" onclick="switchTab('personnel',this)">Personnel Planner <span class="count" id="count-personnel">—</span></button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="master" onclick="switchTab('master',this)">Master Project <span class="count" id="count-master">—</span></button>
+</nav>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <!-- ── QUOTE LOG ── -->
+  <section class="tab-content active" id="tab-quote" role="tabpanel">
+    <div class="empty-state" id="empty-quote">
+      <div class="icon-wrap"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <h3>Quote Log</h3>
+      <p>Upload the QuoteLog Excel file to visualize your sales pipeline, revenue metrics, and contribution margins.</p>
+    </div>
+    <div id="data-quote" style="display:none">
+      <div class="filters-bar" id="filters-quote">
+        <label>From</label><input type="date" class="filter-date" id="fq-from" onchange="applyFilters('quote')">
+        <label>To</label><input type="date" class="filter-date" id="fq-to" onchange="applyFilters('quote')">
+        <label>Status</label><select class="filter-select" id="fq-status" onchange="applyFilters('quote')"><option value="">All</option></select>
+        <label>Segment</label><select class="filter-select" id="fq-segment" onchange="applyFilters('quote')"><option value="">All</option></select>
+        <label>Customer</label><select class="filter-select" id="fq-customer" onchange="applyFilters('quote')"><option value="">All</option></select>
+        <label>Responsible</label><select class="filter-select" id="fq-responsible" onchange="applyFilters('quote')"><option value="">All</option></select>
+        <button class="filter-reset" onclick="resetFilters('quote')">Clear All</button>
+      </div>
+      <div class="kpi-row" id="kpi-quote"></div>
+      <div class="chart-grid" id="charts-quote">
+        <div class="chart-card"><div class="chart-header"><h3>Sales Funnel <span class="tag">by Status</span></h3><span class="chart-total" id="qt-funnel-total"></span></div><div class="chart-wrap"><canvas id="qc-funnel"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Revenue by Segment</h3></div><div class="chart-wrap"><canvas id="qc-segment"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Top 10 Clients <span class="tag">by Revenue</span></h3></div><div class="chart-wrap"><canvas id="qc-clients"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Pipeline by Probability</h3></div><div class="chart-wrap"><canvas id="qc-probability"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Top Products <span class="tag">by Revenue</span></h3></div><div class="chart-wrap"><canvas id="qc-products"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Revenue by Responsible</h3></div><div class="chart-wrap"><canvas id="qc-responsible"></canvas></div></div>
+        <div class="chart-card wide"><div class="chart-header"><h3>Quotes Timeline</h3><span class="chart-total" id="qt-timeline-total"></span></div><div class="chart-wrap"><canvas id="qc-timeline"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>CMR % by Segment</h3></div><div class="chart-wrap"><canvas id="qc-cmr"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Win Rate by Segment</h3></div><div class="chart-wrap"><canvas id="qc-winrate"></canvas></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PERSONNEL PLANNER ── -->
+  <section class="tab-content" id="tab-personnel" role="tabpanel">
+    <div class="empty-state" id="empty-personnel">
+      <div class="icon-wrap"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <h3>Personnel Planner</h3>
+      <p>Upload the Personnel Planner Excel file to visualize technician assignments, utilization, and workforce distribution.</p>
+    </div>
+    <div id="data-personnel" style="display:none">
+      <div class="filters-bar" id="filters-personnel">
+        <label>From</label><input type="date" class="filter-date" id="fp-from" onchange="applyFilters('personnel')">
+        <label>To</label><input type="date" class="filter-date" id="fp-to" onchange="applyFilters('personnel')">
+        <label>Status</label><select class="filter-select" id="fp-status" onchange="applyFilters('personnel')"><option value="">All</option></select>
+        <label>Client</label><select class="filter-select" id="fp-client" onchange="applyFilters('personnel')"><option value="">All</option></select>
+        <label>Installation</label><select class="filter-select" id="fp-install" onchange="applyFilters('personnel')"><option value="">All</option></select>
+        <label>Classification</label><select class="filter-select" id="fp-class" onchange="applyFilters('personnel')"><option value="">All</option></select>
+        <button class="filter-reset" onclick="resetFilters('personnel')">Clear All</button>
+      </div>
+      <div class="kpi-row" id="kpi-personnel"></div>
+      <div class="chart-grid" id="charts-personnel">
+        <div class="chart-card"><div class="chart-header"><h3>Status Distribution</h3></div><div class="chart-wrap"><canvas id="pc-status"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Support Classification</h3></div><div class="chart-wrap"><canvas id="pc-class"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Personnel by Installation</h3></div><div class="chart-wrap"><canvas id="pc-install"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Personnel by Client</h3></div><div class="chart-wrap"><canvas id="pc-client"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Top Competencies</h3></div><div class="chart-wrap"><canvas id="pc-comp"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Man-Days by Client</h3></div><div class="chart-wrap"><canvas id="pc-mandays"></canvas></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MASTER PROJECT ── -->
+  <section class="tab-content" id="tab-master" role="tabpanel">
+    <div class="empty-state" id="empty-master">
+      <div class="icon-wrap"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <h3>Master Project Sheet</h3>
+      <p>Upload the Guyana Master Project Sheet to view work order tracking, billing status, and project financials.</p>
+    </div>
+    <div id="data-master" style="display:none">
+      <div class="filters-bar" id="filters-master">
+        <label>Status</label><select class="filter-select" id="fm-status" onchange="applyFilters('master')"><option value="">All</option></select>
+        <label>Installation</label><select class="filter-select" id="fm-install" onchange="applyFilters('master')"><option value="">All</option></select>
+        <label>Client</label><select class="filter-select" id="fm-client" onchange="applyFilters('master')"><option value="">All</option></select>
+        <label>Responsible</label><select class="filter-select" id="fm-resp" onchange="applyFilters('master')"><option value="">All</option></select>
+        <label>Period</label><select class="filter-select" id="fm-period" onchange="applyFilters('master')"><option value="">All</option></select>
+        <button class="filter-reset" onclick="resetFilters('master')">Clear All</button>
+      </div>
+      <div class="kpi-row" id="kpi-master"></div>
+      <div class="chart-grid" id="charts-master">
+        <div class="chart-card"><div class="chart-header"><h3>Work Order Status</h3></div><div class="chart-wrap"><canvas id="mc-status"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Revenue by Installation</h3></div><div class="chart-wrap"><canvas id="mc-install"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>Top Responsible <span class="tag">by PO Value</span></h3></div><div class="chart-wrap"><canvas id="mc-resp"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3>PO Value vs Invoiced</h3></div><div class="chart-wrap"><canvas id="mc-poinv"></canvas></div></div>
+        <div class="chart-card wide"><div class="chart-header"><h3>Work Orders by Period</h3></div><div class="chart-wrap"><canvas id="mc-period"></canvas></div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   CONSTANTS & STATE
+   ═══════════════════════════════════════════════════ */
+const C = ['#1a4548','#2a9d8f','#f59e42','#e76f51','#0693e3','#e9c46a','#264653','#00d084','#f4a261','#4aacb0','#9b51e0','#f78da7','#2d7a7f','#d4a373','#8ed1fc'];
+const CA = C.map(c => c + '20');
+
+const state = { quote: { raw: [], filtered: [] }, personnel: { raw: [], filtered: [] }, master: { raw: [], filtered: [] } };
+const charts = {};
+
+/* ═══════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════ */
+const fmt = (n, d=0) => { if(n==null||isNaN(n)) return '—'; if(Math.abs(n)>=1e9) return (n/1e9).toFixed(2)+'B'; if(Math.abs(n)>=1e6) return (n/1e6).toFixed(1)+'M'; if(Math.abs(n)>=1e3) return (n/1e3).toFixed(1)+'K'; return n.toFixed(d); };
+const fmtCur = n => { if(n==null||isNaN(n)) return '—'; return '$'+fmt(n); };
+const groupBy = (arr, key) => { const m={}; arr.forEach(r => { const k=(r[key]||'').toString().trim()||'(blank)'; (m[k]=m[k]||[]).push(r); }); return m; };
+const sumBy = (arr, key) => arr.reduce((s,r) => s+(parseFloat(r[key])||0), 0);
+const avgBy = (arr, key) => { const v=arr.map(r=>parseFloat(r[key])).filter(x=>!isNaN(x)&&x!==0); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; };
+const topN = (obj, n=10) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);
+const parseDate = v => { if(!v) return null; if(v instanceof Date) return v; const s=v.toString().trim(); if(/^\d{4}-\d{2}-\d{2}/.test(s)||/T\d{2}:/.test(s)) return new Date(s); return null; };
+const excelDate = v => { if(v instanceof Date) return v; if(typeof v==='number'&&v>25000&&v<60000) return new Date((v-25569)*864e5); return parseDate(v); };
+
+function populateSelect(id, values) {
+  const sel = document.getElementById(id);
+  const cur = sel.value;
+  while(sel.options.length>1) sel.remove(1);
+  [...new Set(values)].filter(Boolean).sort().forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+  sel.value = cur;
+}
+
+function updateCount(type, n) {
+  const el = document.getElementById('count-'+type);
+  if(el) el.textContent = n;
+}
+
+/* ═══════════════════════════════════════════════════
+   FILE HANDLING
+   ═══════════════════════════════════════════════════ */
+function handleFile(event, type) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const btn = document.getElementById('upload'+type.charAt(0).toUpperCase()+type.slice(1));
+  btn.classList.add('processing');
+  btn.classList.remove('loaded');
+
+  if(typeof XLSX === 'undefined') {
+    alert('SheetJS library not loaded. Please check your internet connection and reload.');
+    btn.classList.remove('processing');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let wb;
+    try {
+      wb = XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:true, WTF:false});
+    } catch(err) {
+      console.error('XLSX parse error:', err);
+      // Retry without cellDates
+      try {
+        wb = XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:false, WTF:false});
+      } catch(err2) {
+        console.error('XLSX parse error (retry):', err2);
+        btn.classList.remove('processing');
+        alert('Error reading file: ' + err2.message);
+        return;
+      }
+    }
+    try {
+      if(type==='quote') processQuote(wb);
+      else if(type==='personnel') processPersonnel(wb);
+      else if(type==='master') processMaster(wb);
+      btn.classList.remove('processing');
+      btn.classList.add('loaded');
+    } catch(err) {
+      btn.classList.remove('processing');
+      console.error('Processing error:', err);
+      alert('Error processing data: ' + err.message);
+    }
+  };
+  reader.onerror = function() {
+    btn.classList.remove('processing');
+    alert('Error reading file from disk.');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ─── PROCESSORS ─── */
+function processQuote(wb) {
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  state.quote.raw = XLSX.utils.sheet_to_json(ws, {defval:''});
+  updateCount('quote', state.quote.raw.length);
+  populateSelect('fq-status', state.quote.raw.map(r=>r['Status']));
+  populateSelect('fq-segment', state.quote.raw.map(r=>r['Segment']));
+  populateSelect('fq-customer', state.quote.raw.map(r=>r['Customer']));
+  populateSelect('fq-responsible', state.quote.raw.map(r=>(r['Responsible']||'').split('@')[0].replace(/\./g,' ').trim()));
+  document.getElementById('empty-quote').style.display='none';
+  document.getElementById('data-quote').style.display='block';
+  applyFilters('quote');
+}
+
+function processPersonnel(wb) {
+  const sn = wb.SheetNames.find(s=>s.toLowerCase().includes('planner'))||wb.SheetNames[0];
+  state.personnel.raw = XLSX.utils.sheet_to_json(wb.Sheets[sn], {defval:'', cellDates:true}).filter(r=>r['Technician Name']);
+  updateCount('personnel', state.personnel.raw.length);
+  populateSelect('fp-status', state.personnel.raw.map(r=>r['Status']));
+  populateSelect('fp-client', state.personnel.raw.map(r=>r['Client']));
+  populateSelect('fp-install', state.personnel.raw.map(r=>r['Installation']));
+  populateSelect('fp-class', state.personnel.raw.map(r=>r['Support Classification']));
+  document.getElementById('empty-personnel').style.display='none';
+  document.getElementById('data-personnel').style.display='block';
+  applyFilters('personnel');
+}
+
+function processMaster(wb) {
+  // Find sheet: prefer "Axess Glass Inc", then any with "glass", "guyana", or first
+  let sn = wb.SheetNames.find(s=>s.includes('Axess Glass'));
+  if(!sn) sn = wb.SheetNames.find(s=>s.toLowerCase().includes('glass'));
+  if(!sn) sn = wb.SheetNames.find(s=>s.toLowerCase().includes('guyana'));
+  if(!sn) sn = wb.SheetNames[0];
+
+  console.log('Master Project: using sheet "'+sn+'"');
+  const ws = wb.Sheets[sn];
+  if(!ws) { alert('Could not find data sheet in Master Project file.'); return; }
+
+  const raw = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', cellDates:true});
+  if(!raw || raw.length < 3) { alert('Sheet "'+sn+'" appears empty.'); return; }
+
+  // Find header row (contains "Work Order Number" or "Work Order")
+  let hi=0;
+  for(let i=0;i<Math.min(raw.length,10);i++) {
+    if(raw[i] && raw[i].some(c=>(c||'').toString().toLowerCase().includes('work order'))) {hi=i; break;}
+  }
+
+  const headers = (raw[hi]||[]).map(h=>(h||'').toString().trim());
+  console.log('Master headers at row '+hi+':', headers.slice(0,10));
+
+  const rows=[];
+  for(let i=hi+1;i<raw.length;i++) {
+    if(!raw[i]) continue;
+    const obj={}; let has=false;
+    headers.forEach((h,j)=>{ if(h){obj[h]=raw[i][j]??''; if(raw[i][j]!=null && raw[i][j]!=='') has=true;} });
+    if(has && obj['Work Order Number']) rows.push(obj);
+  }
+  console.log('Master Project: parsed '+rows.length+' rows');
+  state.master.raw=rows;
+  updateCount('master', rows.length);
+  const getS=r=>(r['Recent Updates']||r['Status']||'').toString().trim();
+  const getR=r=>(r['Responsible/ Project Manager']||r['Responsible/ Project Manager ']||'').toString().trim();
+  populateSelect('fm-status', rows.map(getS));
+  populateSelect('fm-install', rows.map(r=>r['Installation']));
+  populateSelect('fm-client', rows.map(r=>r['Client']));
+  populateSelect('fm-resp', rows.map(getR));
+  populateSelect('fm-period', rows.map(r=>r['PERIOD']));
+  document.getElementById('empty-master').style.display='none';
+  document.getElementById('data-master').style.display='block';
+  applyFilters('master');
+}
+
+/* ═══════════════════════════════════════════════════
+   FILTERING
+   ═══════════════════════════════════════════════════ */
+function applyFilters(type) {
+  let d = [...state[type].raw];
+  if(type==='quote') {
+    const s=document.getElementById('fq-status').value, seg=document.getElementById('fq-segment').value;
+    const cust=document.getElementById('fq-customer').value, resp=document.getElementById('fq-responsible').value;
+    const df=document.getElementById('fq-from').value, dt=document.getElementById('fq-to').value;
+    if(s) d=d.filter(r=>r['Status']===s);
+    if(seg) d=d.filter(r=>r['Segment']===seg);
+    if(cust) d=d.filter(r=>r['Customer']===cust);
+    if(resp) d=d.filter(r=>(r['Responsible']||'').split('@')[0].replace(/\./g,' ').trim()===resp);
+    if(df) d=d.filter(r=>{const x=parseDate(r['Quote Date']); return x&&x>=new Date(df);});
+    if(dt) d=d.filter(r=>{const x=parseDate(r['Quote Date']); return x&&x<=new Date(dt+'T23:59:59');});
+    state.quote.filtered=d;
+    renderQuoteKPIs(d);
+    renderQuoteCharts(d);
+  } else if(type==='personnel') {
+    const s=document.getElementById('fp-status').value, cl=document.getElementById('fp-client').value;
+    const inst=document.getElementById('fp-install').value, cls=document.getElementById('fp-class').value;
+    const df=document.getElementById('fp-from').value, dt=document.getElementById('fp-to').value;
+    if(s) d=d.filter(r=>(r['Status']||'').toString().trim()===s);
+    if(cl) d=d.filter(r=>(r['Client']||'').toString().trim()===cl);
+    if(inst) d=d.filter(r=>(r['Installation']||'').toString().trim()===inst);
+    if(cls) d=d.filter(r=>(r['Support Classification']||'').toString().trim()===cls);
+    if(df) d=d.filter(r=>{const x=excelDate(r['Start Date']); return x&&x>=new Date(df);});
+    if(dt) d=d.filter(r=>{const x=excelDate(r['End Date']); return x&&x<=new Date(dt+'T23:59:59');});
+    state.personnel.filtered=d;
+    renderPersonnelKPIs(d);
+    renderPersonnelCharts(d);
+  } else if(type==='master') {
+    const getS=r=>(r['Recent Updates']||r['Status']||'').toString().trim();
+    const getR=r=>(r['Responsible/ Project Manager']||r['Responsible/ Project Manager ']||'').toString().trim();
+    const s=document.getElementById('fm-status').value, inst=document.getElementById('fm-install').value;
+    const cl=document.getElementById('fm-client').value, resp=document.getElementById('fm-resp').value;
+    const per=document.getElementById('fm-period').value;
+    if(s) d=d.filter(r=>getS(r)===s);
+    if(inst) d=d.filter(r=>(r['Installation']||'').toString().trim()===inst);
+    if(cl) d=d.filter(r=>(r['Client']||'').toString().trim()===cl);
+    if(resp) d=d.filter(r=>getR(r)===resp);
+    if(per) d=d.filter(r=>(r['PERIOD']||'').toString()===per);
+    state.master.filtered=d;
+    renderMasterKPIs(d);
+    renderMasterCharts(d);
+  }
+}
+
+function resetFilters(type) {
+  const box=document.getElementById('filters-'+type);
+  box.querySelectorAll('select').forEach(s=>s.value='');
+  box.querySelectorAll('input[type="date"]').forEach(i=>i.value='');
+  applyFilters(type);
+}
+
+/* ═══════════════════════════════════════════════════
+   TAB SWITCHING
+   ═══════════════════════════════════════════════════ */
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active'); b.setAttribute('aria-selected','false');});
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  el.setAttribute('aria-selected','true');
+  document.getElementById('tab-'+tab).classList.add('active');
+  setTimeout(()=>Object.values(charts).forEach(c=>{if(c&&c.resize)c.resize();}),60);
+}
+
+/* ═══════════════════════════════════════════════════
+   CHART DEFAULTS
+   ═══════════════════════════════════════════════════ */
+Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#8a8580';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'rectRounded';
+Chart.defaults.plugins.legend.labels.padding = 14;
+Chart.defaults.plugins.legend.labels.font = { size: 11, weight: 500 };
+Chart.defaults.plugins.tooltip.backgroundColor = '#1a1917';
+Chart.defaults.plugins.tooltip.titleFont = { size: 12, weight: 600 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 11 };
+Chart.defaults.plugins.tooltip.cornerRadius = 6;
+Chart.defaults.plugins.tooltip.padding = { x: 10, y: 8 };
+Chart.defaults.plugins.tooltip.displayColors = true;
+Chart.defaults.plugins.tooltip.boxWidth = 8;
+Chart.defaults.plugins.tooltip.boxHeight = 8;
+Chart.defaults.animation = { duration: 500, easing: 'easeOutQuart' };
+
+function mk(id, cfg) { if(charts[id]) charts[id].destroy(); const ctx=document.getElementById(id); if(!ctx) return null; charts[id]=new Chart(ctx,cfg); return charts[id]; }
+
+/* ─── CONFIG FACTORIES ─── */
+function donutCfg(labels, data) {
+  return {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: C.slice(0, labels.length), borderWidth: 2, borderColor: '#fff', hoverOffset: 8, hoverBorderWidth: 0 }] },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'66%',
+      plugins: {
+        legend: { position:'right', labels:{ padding:10, font:{size:11} } },
+        tooltip: { callbacks: { label: ctx => { const total=ctx.dataset.data.reduce((a,b)=>a+b,0); return `${ctx.label}: ${fmt(ctx.raw)} (${(ctx.raw/total*100).toFixed(1)}%)`; } } }
+      }
+    }
+  };
+}
+
+function hbarCfg(labels, data, color, gradient) {
+  return {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: gradient ? labels.map((_,i) => C[i%C.length]+'cc') : (color||C[0])+'cc', borderRadius: 6, barThickness: 22, hoverBackgroundColor: gradient ? labels.map((_,i) => C[i%C.length]) : (color||C[0]) }] },
+    options: {
+      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins: { legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>` ${fmt(ctx.raw)}` } } },
+      scales: { x:{ grid:{color:'#f1efec',drawBorder:false}, ticks:{callback:v=>fmt(v)} }, y:{ grid:{display:false}, ticks:{font:{size:11}} } }
+    }
+  };
+}
+
+function barCfg(labels, datasets, stacked=false) {
+  return {
+    type: 'bar',
+    data: { labels, datasets: datasets.map((ds,i) => {
+      let hover = C[i];
+      if(ds.backgroundColor) {
+        if(typeof ds.backgroundColor === 'string') hover = ds.backgroundColor.replace(/cc$|aa$/,'');
+        else if(Array.isArray(ds.backgroundColor)) hover = ds.backgroundColor.map(c => typeof c==='string' ? c.replace(/cc$|aa$/,'') : c);
+      }
+      return { ...ds, borderRadius:6, hoverBackgroundColor: hover };
+    }) },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{display:datasets.length>1, labels:{padding:12}} },
+      scales: { x:{grid:{display:false},stacked,ticks:{font:{size:11}}}, y:{grid:{color:'#f1efec',drawBorder:false},stacked,ticks:{callback:v=>fmt(v)}} }
+    }
+  };
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER: QUOTE LOG
+   ═══════════════════════════════════════════════════ */
+function renderQuoteKPIs(d) {
+  const total=d.length;
+  const rev=sumBy(d,'Sum Total Base Currency');
+  const weighted=sumBy(d,'Weighted Probability Sum');
+  const cmr=avgBy(d,'CMR Total');
+  const acc=d.filter(r=>r['Status']==='Accepted').length;
+  const dec=d.filter(r=>r['Status']==='Accepted'||r['Status']==='Rejected').length;
+  const wr=dec>0?(acc/dec*100):0;
+
+  document.getElementById('kpi-quote').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Total Quotes</div><div class="kpi-value">${total}</div><div class="kpi-sub">${d.filter(r=>r['Status']==='Draft').length} drafts pending</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value">${fmtCur(rev)}</div><div class="kpi-sub">Base currency (NOK)</div></div>
+    <div class="kpi-card"><div class="kpi-label">Weighted Pipeline</div><div class="kpi-value">${fmtCur(weighted)}</div><div class="kpi-sub">Probability-adjusted</div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg CMR</div><div class="kpi-value">${cmr.toFixed(1)}%</div><div class="kpi-sub">Contribution margin</div></div>
+    <div class="kpi-card"><div class="kpi-label">Win Rate</div><div class="kpi-value">${wr.toFixed(1)}%</div><div class="kpi-sub">${acc} won / ${dec} decided</div></div>`;
+}
+
+function renderQuoteCharts(d) {
+  // FUNNEL
+  const so=['Draft','Sent','Accepted','Rejected'];
+  const sc=['#e9c46a','#0693e3','#00d084','#e76f51'];
+  const sv=so.map(s=>d.filter(r=>r['Status']===s).length);
+  document.getElementById('qt-funnel-total').textContent = d.length+' total';
+  mk('qc-funnel',{
+    type:'bar',
+    data:{labels:so,datasets:[{data:sv,backgroundColor:sc,borderRadius:6,barThickness:32,hoverBackgroundColor:sc.map(c=>c+'dd')}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} quotes (${(ctx.raw/d.length*100).toFixed(1)}%)`}}},
+      scales:{x:{grid:{color:'#f1efec',drawBorder:false}},y:{grid:{display:false},ticks:{font:{size:12,weight:600}}}}}
+  });
+
+  // SEGMENT DONUT
+  const sg=groupBy(d,'Segment');
+  const se=topN(Object.fromEntries(Object.entries(sg).map(([k,v])=>[k,sumBy(v,'Sum Total Base Currency')])));
+  mk('qc-segment',donutCfg(se.map(e=>e[0]),se.map(e=>e[1])));
+
+  // TOP CLIENTS
+  const cg=groupBy(d,'Customer');
+  const ce=topN(Object.fromEntries(Object.entries(cg).map(([k,v])=>[k,sumBy(v,'Sum Total Base Currency')])));
+  mk('qc-clients',hbarCfg(ce.map(e=>e[0]),ce.map(e=>e[1]),C[1],true));
+
+  // PROBABILITY
+  const pg=groupBy(d,'Probability');
+  const pl=Object.keys(pg).sort((a,b)=>+a - +b);
+  mk('qc-probability',{
+    type:'bar',
+    data:{labels:pl.map(p=>p+'%'),datasets:[
+      {label:'Weighted Value',data:pl.map(p=>sumBy(pg[p],'Weighted Probability Sum')),backgroundColor:C[2]+'aa',borderRadius:6,order:1},
+      {label:'Total Value',data:pl.map(p=>sumBy(pg[p],'Sum Total Base Currency')),backgroundColor:C[0]+'30',borderRadius:6,order:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'#f1efec',drawBorder:false},ticks:{callback:v=>fmt(v)}}}}
+  });
+
+  // PRODUCTS
+  const prg=groupBy(d,'Axess Product');
+  const pre=topN(Object.fromEntries(Object.entries(prg).map(([k,v])=>[k,sumBy(v,'Sum Total Base Currency')])));
+  mk('qc-products',hbarCfg(pre.map(e=>e[0].length>38?e[0].substring(0,38)+'…':e[0]),pre.map(e=>e[1]),null,true));
+
+  // RESPONSIBLE
+  const rg=groupBy(d,'Responsible');
+  const re=topN(Object.fromEntries(Object.entries(rg).map(([k,v])=>[k.split('@')[0].replace(/\./g,' ').trim(),sumBy(v,'Sum Total Base Currency')])));
+  mk('qc-responsible',hbarCfg(re.map(e=>e[0]),re.map(e=>e[1]),C[4],true));
+
+  // TIMELINE (area)
+  const byM={};
+  d.forEach(r=>{const dt=parseDate(r['Quote Date']); if(dt){const k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0'); byM[k]=(byM[k]||0)+1;}});
+  const tl=Object.keys(byM).sort();
+  document.getElementById('qt-timeline-total').textContent = tl.length+' months';
+  mk('qc-timeline',{
+    type:'line',
+    data:{labels:tl,datasets:[{
+      label:'Quotes',data:tl.map(k=>byM[k]),
+      borderColor:C[0],backgroundColor:'rgba(26,69,72,0.08)',fill:true,
+      tension:0.4,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:C[0],pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false},ticks:{maxRotation:45}},y:{grid:{color:'#f1efec',drawBorder:false},beginAtZero:true}}}
+  });
+
+  // CMR BY SEGMENT
+  const cmrs=Object.entries(sg).map(([k,v])=>[k,avgBy(v,'CMR Total')]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  mk('qc-cmr',barCfg(cmrs.map(e=>e[0]),[{label:'Avg CMR %',data:cmrs.map(e=>e[1]),backgroundColor:cmrs.map((_,i)=>C[i%C.length]+'aa'),borderRadius:6}]));
+
+  // WIN RATE BY SEGMENT
+  const wrSegs = Object.entries(sg).map(([k,v]) => {
+    const a=v.filter(r=>r['Status']==='Accepted').length;
+    const dec=v.filter(r=>r['Status']==='Accepted'||r['Status']==='Rejected').length;
+    return [k, dec>0?(a/dec*100):0, dec];
+  }).filter(e=>e[2]>0).sort((a,b)=>b[1]-a[1]);
+  mk('qc-winrate',{
+    type:'bar',
+    data:{labels:wrSegs.map(e=>e[0]),datasets:[{label:'Win Rate %',data:wrSegs.map(e=>e[1]),backgroundColor:wrSegs.map(e=>e[1]>=50?'#00d084aa':'#f59e42aa'),borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.toFixed(1)}% (${wrSegs[ctx.dataIndex][2]} decided)`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f1efec',drawBorder:false},max:100,ticks:{callback:v=>v+'%'}}}}
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER: PERSONNEL PLANNER
+   ═══════════════════════════════════════════════════ */
+function renderPersonnelKPIs(d) {
+  const total=d.length;
+  const techs=new Set(d.map(r=>(r['Technician Name']||'').trim())).size;
+  let totalDays=0, cnt=0;
+  d.forEach(r=>{const s=excelDate(r['Start Date']),e=excelDate(r['End Date']); if(s&&e){totalDays+=Math.max(0,Math.round((e-s)/864e5)); cnt++;}});
+  const avg=cnt>0?(totalDays/cnt):0;
+  const off=d.filter(r=>(r['Status']||'').toString().trim()==='Offshore').length;
+  const pct=total>0?(off/total*100):0;
+
+  document.getElementById('kpi-personnel').innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Total Assignments</div><div class="kpi-value">${total}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Unique Technicians</div><div class="kpi-value">${techs}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Man-Days</div><div class="kpi-value">${fmt(totalDays)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg Duration</div><div class="kpi-value">${avg.toFixed(1)}d</div></div>
+    <div class="kpi-card"><div class="kpi-label">Offshore Rate</div><div class="kpi-value">${pct.toFixed(1)}%</div><div class="kpi-sub">${off} of ${total}</div></div>`;
+}
+
+function renderPersonnelCharts(d) {
+  const sg=groupBy(d,'Status');
+  const sl=Object.keys(sg).sort((a,b)=>sg[b].length-sg[a].length);
+  mk('pc-status',donutCfg(sl,sl.map(s=>sg[s].length)));
+
+  const cg=groupBy(d,'Support Classification');
+  const cl=Object.keys(cg).sort((a,b)=>cg[b].length-cg[a].length);
+  mk('pc-class',donutCfg(cl,cl.map(c=>cg[c].length)));
+
+  const ig=groupBy(d,'Installation');
+  const ie=Object.entries(ig).map(([k,v])=>[k,v.length]).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  mk('pc-install',hbarCfg(ie.map(e=>e[0]),ie.map(e=>e[1]),null,true));
+
+  const clg=groupBy(d,'Client');
+  const cle=Object.entries(clg).map(([k,v])=>[k,v.length]).sort((a,b)=>b[1]-a[1]);
+  mk('pc-client',barCfg(cle.map(e=>e[0]),[{label:'Assignments',data:cle.map(e=>e[1]),backgroundColor:C.slice(0,cle.length).map(c=>c+'aa'),borderRadius:6}]));
+
+  const cpg=groupBy(d,'Competency');
+  const cpe=Object.entries(cpg).map(([k,v])=>[k,v.length]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  mk('pc-comp',hbarCfg(cpe.map(e=>e[0].length>38?e[0].substring(0,38)+'…':e[0]),cpe.map(e=>e[1]),C[1],true));
+
+  const cd={};
+  d.forEach(r=>{const cl=(r['Client']||'').toString().trim()||'(blank)'; const s=excelDate(r['Start Date']),e=excelDate(r['End Date']); if(s&&e){cd[cl]=(cd[cl]||0)+Math.max(0,Math.round((e-s)/864e5));}});
+  const de=topN(cd);
+  mk('pc-mandays',hbarCfg(de.map(e=>e[0]),de.map(e=>e[1]),C[2],true));
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER: MASTER PROJECT
+   ═══════════════════════════════════════════════════ */
+function renderMasterKPIs(d) {
+  const total=d.length;
+  const po=sumBy(d,'PO Value');
+  const inv=d.reduce((s,r)=>s+(parseFloat(r['Invoice Value'])||0),0);
+  const cmrs=d.map(r=>parseFloat(r['CMR'])).filter(v=>!isNaN(v)&&v!==0);
+  const acmr=cmrs.length?(cmrs.reduce((a,b)=>a+b,0)/cmrs.length*100):0;
+  const getS=r=>(r['Recent Updates']||r['Status']||'').toString().trim().toLowerCase();
+  const done=d.filter(r=>getS(r).includes('invoic')||getS(r).includes('complete')).length;
+  const cr=total>0?(done/total*100):0;
+
+  document.getElementById('kpi-master').innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Total Work Orders</div><div class="kpi-value">${total}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total PO Value</div><div class="kpi-value">${fmtCur(po)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Invoiced</div><div class="kpi-value">${fmtCur(inv)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg CMR</div><div class="kpi-value">${acmr.toFixed(1)}%</div></div>
+    <div class="kpi-card"><div class="kpi-label">Completion Rate</div><div class="kpi-value">${cr.toFixed(1)}%</div><div class="kpi-sub">${done} invoiced</div></div>`;
+}
+
+function renderMasterCharts(d) {
+  const getS=r=>(r['Recent Updates']||r['Status']||'').toString().trim()||'(blank)';
+  const getR=r=>(r['Responsible/ Project Manager']||r['Responsible/ Project Manager ']||'').toString().trim()||'(blank)';
+
+  const sg=groupBy(d.map(r=>({...r,_s:getS(r)})),'_s');
+  const sl=Object.keys(sg).sort((a,b)=>sg[b].length-sg[a].length);
+  mk('mc-status',donutCfg(sl,sl.map(s=>sg[s].length)));
+
+  const ig={};
+  d.forEach(r=>{const i=(r['Installation']||'').toString().trim()||'(blank)'; ig[i]=(ig[i]||0)+(parseFloat(r['PO Value'])||0);});
+  const ie=topN(ig,10);
+  mk('mc-install',hbarCfg(ie.map(e=>e[0]),ie.map(e=>e[1]),null,true));
+
+  const rg={};
+  d.forEach(r=>{const rr=getR(r); rg[rr]=(rg[rr]||0)+(parseFloat(r['PO Value'])||0);});
+  const re=topN(rg,8);
+  mk('mc-resp',hbarCfg(re.map(e=>e[0]),re.map(e=>e[1]),C[4],true));
+
+  // PO vs Invoiced grouped
+  const ipo={}, iinv={};
+  d.forEach(r=>{const i=(r['Installation']||'').toString().trim()||'(blank)'; ipo[i]=(ipo[i]||0)+(parseFloat(r['PO Value'])||0); iinv[i]=(iinv[i]||0)+(parseFloat(r['Invoice Value'])||0);});
+  const ti=Object.entries(ipo).sort((a,b)=>b[1]-a[1]).slice(0,8).map(e=>e[0]);
+  mk('mc-poinv',barCfg(ti,[
+    {label:'PO Value',data:ti.map(i=>ipo[i]||0),backgroundColor:C[0]+'aa',borderRadius:6},
+    {label:'Invoiced',data:ti.map(i=>iinv[i]||0),backgroundColor:C[7]+'aa',borderRadius:6}
+  ]));
+
+  const prg=groupBy(d,'PERIOD');
+  const prl=Object.keys(prg).filter(p=>p!=='(blank)').sort();
+  mk('mc-period',barCfg(prl,[{label:'Work Orders',data:prl.map(p=>prg[p].length),backgroundColor:C[2]+'aa',borderRadius:6}]));
+}
+</script>
+</body>
+</html>
