@@ -242,7 +242,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
 @keyframes calibFlash{0%,100%{opacity:1}50%{opacity:.7}}
 .calib-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;font-family:var(--font-mono)}
 .calib-badge.ok{background:rgba(123,184,0,0.12);color:#7AB800}
-.calib-badge.warning{background:rgba(233,131,0,0.12);color:#E98300}
+.calib-badge.warning{background:rgba(234,179,8,0.12);color:#eab308}
 .calib-badge.critical{background:rgba(233,131,0,0.12);color:#E98300}
 .calib-badge.expired{background:rgba(200,40,130,0.12);color:#C82882}
 /* ═══════════════════════ CHART TOGGLES ═══════════════════════ */
@@ -360,7 +360,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
   <nav class="sb-nav" role="tablist" aria-label="Dashboard sections">
     <button class="nav-item active" role="tab" aria-selected="true" data-tab="quote" onclick="switchTab('quote')">
       <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
-      <span class="nav-label">Quote Log</span>
+      <span class="nav-label">Order Backlog</span>
       <span class="nav-badge" id="badge-quote">--</span>
     </button>
     <button class="nav-item" role="tab" aria-selected="false" data-tab="personnel" onclick="switchTab('personnel')">
@@ -396,7 +396,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
 <div class="main" id="main-content">
   <!-- Mobile Nav -->
   <div class="mobile-nav" role="tablist" aria-label="Dashboard sections (mobile)">
-    <button class="active" data-tab="quote" onclick="switchTab('quote')">Quote Log</button>
+    <button class="active" data-tab="quote" onclick="switchTab('quote')">Order Backlog</button>
     <button data-tab="personnel" onclick="switchTab('personnel')">Personnel</button>
     <button data-tab="equipment" onclick="switchTab('equipment')">Equipment</button>
     <button data-tab="master" onclick="switchTab('master')">Master Project</button>
@@ -406,14 +406,14 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
   <div class="topbar">
     <div class="top-left">
       <div>
-        <div class="top-title" id="top-title">Quote Log & Revenue</div>
+        <div class="top-title" id="top-title">Order Backlog & Revenue</div>
         <div class="top-subtitle">Guyana Operations Dashboard</div>
       </div>
     </div>
     <div class="top-right">
-      <label class="upload-pill" aria-label="Upload Quote Log Excel file">
+      <label class="upload-pill" aria-label="Upload Order Backlog Excel file">
         <span class="pill-dot loaded" id="dot-quote"></span>
-        <span class="pill-label">Quote Log</span>
+        <span class="pill-label">Order Backlog</span>
         <input type="file" accept=".xlsx,.xls,.csv" onchange="handleUpload(this,'quote')">
       </label>
       <label class="upload-pill" aria-label="Upload Personnel Planner Excel file">
@@ -442,7 +442,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
   <div class="content">
 
     <!-- ═══════ TAB 1: QUOTE LOG ═══════ -->
-    <div class="tab-panel active" id="panel-quote" role="tabpanel" aria-label="Quote Log">
+    <div class="tab-panel active" id="panel-quote" role="tabpanel" aria-label="Order Backlog">
       <div class="filters-bar" id="filters-quote">
         <div class="filter-group"><label>Year</label><select class="filter-input" id="q-year" onchange="onYearFilter('quote')"><option value="">All</option></select></div>
         <div class="filter-group"><label>From</label><input type="date" class="filter-input" id="q-from" onchange="applyFilters('quote')"></div>
@@ -649,7 +649,7 @@ function getCalibStatus(calibEndDate) {
 function calibLabel(status) {
   // Semaphore labels (template):
   // Green = Calibrated, Amber = Next to calibrate (warning/critical), Red = Calibration expired
-  const map = { expired: 'Calibration expired', critical: 'Next to calibrate', warning: 'Next to calibrate', ok: 'Calibrated', unknown: 'N/A' };
+  const map = { expired: 'Calibration expired', critical: 'Next to calibrate (this month)', warning: 'Next to calibrate (1-3mo)', ok: 'Calibrated (>3mo)', unknown: 'N/A' };
   return map[status] || 'N/A';
 }
 
@@ -708,7 +708,7 @@ function switchTab(tab) {
   document.getElementById('panel-' + tab).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => { n.classList.toggle('active', n.dataset.tab === tab); n.setAttribute('aria-selected', n.dataset.tab === tab); });
   document.querySelectorAll('.mobile-nav button').forEach(n => n.classList.toggle('active', n.dataset.tab === tab));
-  const titles = { quote: 'Quote Log & Revenue', personnel: 'Personnel & Scheduling', equipment: 'Equipment & Calibration', master: 'Work Orders & Billing' };
+  const titles = { quote: 'Order Backlog & Revenue', personnel: 'Personnel & Scheduling', equipment: 'Equipment & Calibration', master: 'Work Orders & Billing' };
   document.getElementById('top-title').textContent = titles[tab];
   setTimeout(() => Object.values(charts).forEach(c => { if (c && c.updateOptions) c.updateOptions({}, false, false, false); }), 50);
 }
@@ -822,7 +822,7 @@ function generateDemoData() {
   // Quote data
   state.quote.raw = [];
   for (let i = 0; i < 120; i++) {
-    const dt = new Date(2025, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+    const dt = new Date(2026, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
     const prob = [10, 20, 30, 50, 70, 80, 90, 100][Math.floor(Math.random() * 8)];
     const revenue = Math.round(50000 + Math.random() * 2500000);
     state.quote.raw.push({
@@ -843,7 +843,7 @@ function generateDemoData() {
   // Personnel data
   state.personnel.raw = [];
   for (let i = 0; i < 85; i++) {
-    const startD = new Date(2025, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+    const startD = new Date(2026, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
     const dur = 5 + Math.floor(Math.random() * 60);
     const endD = new Date(startD.getTime() + dur * 864e5);
     state.personnel.raw.push({
@@ -861,7 +861,7 @@ function generateDemoData() {
 
   // Master data
   const woStatuses = ['In Progress', 'Completed', 'Invoiced', 'On Hold', 'Pending Approval', 'Cancelled'];
-  const periods = ['2025-Q1', '2025-Q2', '2025-Q3', '2025-Q4', '2026-Q1'];
+  const periods = ['2026-Q1', '2026-Q2', '2026-Q3', '2026-Q4', '2027-Q1'];
   state.master.raw = [];
   for (let i = 0; i < 65; i++) {
     const po = Math.round(100000 + Math.random() * 1800000);
@@ -887,7 +887,7 @@ function generateDemoData() {
   state.equipment.raw = [];
   const now = new Date();
   for (let i = 0; i < 60; i++) {
-    const startD = new Date(2025, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+    const startD = new Date(2026, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
     const dur = 30 + Math.floor(Math.random() * 180);
     const endD = new Date(startD.getTime() + dur * 864e5);
     // Calibration end: some this month (critical), some expired, some OK
@@ -1061,7 +1061,7 @@ function populateSelect(id, values) {
 function populateFilters(type) {
   const raw = state[type].raw;
   if (type === 'quote') {
-    const years = [...new Set(raw.map(r => { const d = parseDate(r['Estimated Start Date']); return d ? d.getFullYear() : null; }).filter(Boolean))].sort((a, b) => b - a);
+    const years = [...new Set(raw.map(r => { const d = parseDate(r['Quote Date']); return d ? d.getFullYear() : null; }).filter(Boolean))].sort((a, b) => b - a);
     populateSelect('q-year', years.map(String));
     populateSelect('q-status', unique(raw, 'Status'));
     populateSelect('q-segment', unique(raw, 'Segment'));
@@ -1098,8 +1098,8 @@ function applyFilters(type) {
     const segment = document.getElementById('q-segment').value;
     const customer = document.getElementById('q-customer').value;
     const responsible = document.getElementById('q-responsible').value;
-    if (from) d = d.filter(r => { const x = parseDate(r['Estimated Start Date']); return x && x >= new Date(from); });
-    if (to) d = d.filter(r => { const x = parseDate(r['Estimated Start Date']); return x && x <= new Date(to + 'T23:59:59'); });
+    if (from) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x >= new Date(from); });
+    if (to) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x <= new Date(to + 'T23:59:59'); });
     if (status) d = d.filter(r => r['Status'] === status);
     if (segment) d = d.filter(r => r['Segment'] === segment);
     if (customer) d = d.filter(r => r['Customer'] === customer);
@@ -1235,29 +1235,41 @@ function renderTabContent(type) {
   else if (type === 'master') renderMaster();
 }
 
+// ─── Helper: date-only filtered quotes (ignores status/segment/customer/responsible filters) ───
+function getDateFilteredQuotes() {
+  let d = [...state.quote.raw];
+  const from = document.getElementById('q-from').value;
+  const to = document.getElementById('q-to').value;
+  if (from) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x >= new Date(from); });
+  if (to) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x <= new Date(to + 'T23:59:59'); });
+  return d;
+}
+
 // ─── QUOTE TAB ───
 function renderQuote() {
   const d = state.quote.filtered;
+  const dDateOnly = getDateFilteredQuotes();
   const total = d.length;
+  const totalDateOnly = dDateOnly.length;
   const rev = sumBy(d, 'Sum Total');
   const weighted = sumBy(d, 'Cost Sum Total');
   const cmr = avgBy(d, 'CMR Total');
   const acc = d.filter(r => r['Status'] === 'Accepted').length;
-  const dec = d.filter(r => r['Status'] === 'Accepted' || r['Status'] === 'Rejected').length;
-  const wr = dec > 0 ? (acc / dec * 100) : 0;
+  const wr = totalDateOnly > 0 ? (acc / totalDateOnly * 100) : 0;
 
   renderKPIs('kpi-quote', [
     { label: 'Total Quotes', value: total, format: 'int', sub: d.filter(r => r['Status'] === 'Draft').length + ' drafts pending', accent: 'var(--brand)' },
     { label: 'Total Revenue', value: rev, format: 'cur', sub: 'Base currency (USD)', accent: 'var(--success)' },
     { label: 'Total Cost', value: weighted, format: 'cur', sub: 'Cost sum total', accent: 'var(--info)' },
     { label: 'Avg CMR', value: cmr, format: 'pct', sub: 'Contribution margin', accent: 'var(--warning)' },
-    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' won / ' + dec + ' decided', accent: 'var(--warm)' }
+    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' won / ' + totalDateOnly + ' total quotes', accent: 'var(--warm)' }
   ]);
 
-  // Chart 1: Sales Funnel
+  // Chart 1: Sales Funnel (date-only filter, ignores other filters)
   const so = ['Draft', 'Sent', 'Accepted', 'Rejected'];
   const sc = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'];
-  const sv = so.map(s => d.filter(r => r['Status'] === s).length);
+  const sv = so.map(s => dDateOnly.filter(r => r['Status'] === s).length);
+  const funnelTotal = dDateOnly.length;
   const funnelOpts = {
     chart: { type: 'bar', height: 280 },
     series: [{ data: sv }],
@@ -1268,18 +1280,22 @@ function renderQuote() {
     dataLabels: { enabled: true, formatter: v => v + ' quotes', style: { fontSize: '12px', fontWeight: '600' } },
     legend: { show: false },
     grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
-    tooltip: { y: { formatter: v => v + ' quotes (' + (total > 0 ? (v / total * 100).toFixed(1) : 0) + '%)' } }
+    tooltip: { y: { formatter: v => v + ' quotes (' + (funnelTotal > 0 ? (v / funnelTotal * 100).toFixed(1) : 0) + '%)' } }
   };
 
-  // Chart 2: Revenue by Segment (Treemap)
+  // Chart 2: Revenue by Segment (bar chart, all filters)
   const sg = groupBy(d, 'Segment');
   const se = topN(Object.fromEntries(Object.entries(sg).map(([k, v]) => [k, sumBy(v, 'Sum Total Base Currency')])));
-  const treemapOpts = {
-    chart: { type: 'treemap', height: 280 },
-    series: [{ data: se.map(e => ({ x: e[0], y: Math.round(e[1]) })) }],
+  const segRevOpts = {
+    chart: { type: 'bar', height: 280 },
+    series: [{ data: se.map(e => e[1]) }],
+    plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '60%', distributed: true } },
     colors: COLORS,
-    plotOptions: { treemap: { distributed: true, enableShades: false, borderRadius: 4 } },
-    dataLabels: { enabled: true, style: { fontSize: '12px', fontWeight: '600' }, formatter: (t, op) => [t, '$' + fmt(op.value)], offsetY: -4 },
+    dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '11px', fontWeight: '500' }, formatter: v => fmtCur(v) },
+    xaxis: { categories: se.map(e => e[0]), labels: { formatter: v => fmt(+v) } },
+    yaxis: { labels: { style: { fontSize: '11px' }, maxWidth: 160 } },
+    grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
+    legend: { show: false },
     tooltip: { y: { formatter: v => fmtCur(v) } }
   };
 
@@ -1349,7 +1365,7 @@ function renderQuote() {
     tooltip: { y: { formatter: v => fmtCur(v) } }
   };
 
-  // Chart 7: Timeline
+  // Chart 7: Timeline (by Quote Date)
   const byM = {};
   d.forEach(r => { const dt = parseDate(r['Quote Date']); if (dt) { const k = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0'); byM[k] = (byM[k] || 0) + 1; } });
   const tl = Object.keys(byM).sort();
@@ -1365,41 +1381,70 @@ function renderQuote() {
     markers: { size: 0, hover: { size: 5 } }
   };
 
-  // Chart 8: CMR by Segment
-  const cmrs = Object.entries(sg).map(([k, v]) => [k, avgBy(v, 'CMR Total')]).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  // Chart 8: CMR % by Client
+  const cmrByClient = groupBy(d, 'Customer');
+  const cmrs = Object.entries(cmrByClient).map(([k, v]) => [k, avgBy(v, 'CMR Total')]).sort((a, b) => b[1] - a[1]).slice(0, 10);
   const cmrOpts = {
     chart: { type: 'bar', height: 280 },
     series: [{ data: cmrs.map(e => e[1]) }],
-    plotOptions: { bar: { borderRadius: 5, columnWidth: '55%', distributed: true } },
+    plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '60%', distributed: true } },
     colors: cmrs.map((_, i) => COLORS[i % COLORS.length]),
-    xaxis: { categories: cmrs.map(e => e[0]), labels: { style: { fontSize: '10px' } } },
-    yaxis: { labels: { formatter: v => v.toFixed(1) + '%' } },
-    dataLabels: { enabled: false },
+    xaxis: { categories: cmrs.map(e => e[0]), labels: { formatter: v => (+v).toFixed(1) + '%' } },
+    yaxis: { labels: { style: { fontSize: '11px' }, maxWidth: 160 } },
+    dataLabels: { enabled: true, formatter: v => v.toFixed(1) + '%', style: { fontSize: '11px', fontWeight: '500' } },
     legend: { show: false },
     tooltip: { y: { formatter: v => v.toFixed(1) + '%' } }
   };
 
-  // Chart 9: Win Rate by Segment
-  const wrSegs = Object.entries(sg).map(([k, v]) => {
-    const a = v.filter(r => r['Status'] === 'Accepted').length;
-    const dc = v.filter(r => r['Status'] === 'Accepted' || r['Status'] === 'Rejected').length;
-    return [k, dc > 0 ? (a / dc * 100) : 0, dc];
-  }).filter(e => e[2] > 0).sort((a, b) => b[1] - a[1]);
-  const wrOpts = {
+  // Chart 9: Quotes by Segment (count)
+  const qsBySegment = Object.entries(sg).map(([k, v]) => [k, v.length]).sort((a, b) => b[1] - a[1]);
+  const qsSegOpts = {
     chart: { type: 'bar', height: 280 },
-    series: [{ data: wrSegs.map(e => e[1]) }],
+    series: [{ data: qsBySegment.map(e => e[1]) }],
     plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '60%', distributed: true } },
-    colors: wrSegs.map(e => e[1] >= 50 ? '#10b981' : '#f59e0b'),
-    xaxis: { categories: wrSegs.map(e => e[0]), max: 100, labels: { formatter: v => (+v).toFixed(0) + '%' } },
+    colors: qsBySegment.map((_, i) => COLORS[i % COLORS.length]),
+    xaxis: { categories: qsBySegment.map(e => e[0]) },
     yaxis: { labels: { style: { fontSize: '11px' }, maxWidth: 160 } },
-    dataLabels: { enabled: true, formatter: v => v.toFixed(1) + '%', style: { fontSize: '11px', fontWeight: '500' } },
+    dataLabels: { enabled: true, formatter: v => v + ' quotes', style: { fontSize: '11px', fontWeight: '500' } },
     legend: { show: false },
-    tooltip: { y: { formatter: (v, opts) => { const idx = opts.dataPointIndex; return v.toFixed(1) + '% (' + (wrSegs[idx] ? wrSegs[idx][2] : 0) + ' decided)'; } } },
+    tooltip: { y: { formatter: v => v + ' quotes' } },
     grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } }
   };
 
   // Chart 10: Revenue vs Cost over Time (grouped bar)
   const revCostOpts = buildRevCostChart(d);
+
+  // Chart 11: Revenue by Client (bar chart)
+  const revClientG = groupBy(d, 'Customer');
+  const revClientE = topN(Object.fromEntries(Object.entries(revClientG).map(([k, v]) => [k, sumBy(v, 'Sum Total Base Currency')])));
+  const revClientOpts = {
+    chart: { type: 'bar', height: 280 },
+    series: [{ data: revClientE.map(e => e[1]) }],
+    plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '60%', distributed: true } },
+    colors: COLORS.slice(2),
+    dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '11px', fontWeight: '500' }, formatter: v => fmtCur(v) },
+    xaxis: { categories: revClientE.map(e => e[0]), labels: { formatter: v => fmt(+v) } },
+    yaxis: { labels: { style: { fontSize: '11px' }, maxWidth: 160 } },
+    grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
+    legend: { show: false },
+    tooltip: { y: { formatter: v => fmtCur(v) } }
+  };
+
+  // Chart 12: Quotes by Axess Product (count, similar to Top 10 Clients)
+  const qsProdG = groupBy(d, 'Axess Product');
+  const qsProdE = topN(Object.fromEntries(Object.entries(qsProdG).map(([k, v]) => [k, v.length])));
+  const qsProdOpts = {
+    chart: { type: 'bar', height: 280 },
+    series: [{ data: qsProdE.map(e => e[1]) }],
+    plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '60%', distributed: true } },
+    colors: COLORS.slice(4),
+    dataLabels: { enabled: true, formatter: v => v + ' quotes', style: { fontSize: '11px', fontWeight: '500' } },
+    xaxis: { categories: qsProdE.map(e => e[0].length > 35 ? e[0].substring(0, 35) + '…' : e[0]) },
+    yaxis: { labels: { style: { fontSize: '11px' }, maxWidth: 160 } },
+    grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
+    legend: { show: false },
+    tooltip: { y: { formatter: v => v + ' quotes' } }
+  };
 
   buildChartGrid('charts-quote', [
     { id: 'c-q-revcost', title: 'Revenue vs Cost over Time', tag: quoteTimePeriod, options: revCostOpts, wide: true },
@@ -1407,11 +1452,13 @@ function renderQuote() {
     { id: 'c-q-prob', title: 'Pipeline by Probability', options: probOpts },
     { id: 'c-q-products', title: 'Top Products', tag: 'by Revenue', options: productsOpts },
     { id: 'c-q-resp', title: 'Revenue by Responsible', options: respOpts },
-    { id: 'c-q-timeline', title: 'Quotes Timeline', tag: tl.length + ' months', options: timelineOpts, wide: true },
-    { id: 'c-q-cmr', title: 'CMR % by Segment', options: cmrOpts },
-    { id: 'c-q-wr', title: 'Win Rate by Segment', options: wrOpts },
+    { id: 'c-q-timeline', title: 'Quotes Timeline', tag: 'by Quote Date', options: timelineOpts, wide: true },
+    { id: 'c-q-cmr', title: 'CMR % by Client', options: cmrOpts },
+    { id: 'c-q-qsseg', title: 'Quotes by Segment', options: qsSegOpts },
     { id: 'c-q-funnel', title: 'Sales Funnel', tag: 'by Status', options: funnelOpts },
-    { id: 'c-q-treemap', title: 'Revenue by Segment', options: treemapOpts }
+    { id: 'c-q-treemap', title: 'Revenue by Segment', options: segRevOpts },
+    { id: 'c-q-revclient', title: 'Revenue by Client', options: revClientOpts },
+    { id: 'c-q-qsprod', title: 'Quotes by Axess Product', options: qsProdOpts }
   ]);
 
   // Inject controls into the Revenue vs Cost chart header
@@ -1484,7 +1531,7 @@ function renderQuote() {
   });
 }
 
-// Budget & Forecast data by month (index 0=Jan, 11=Dec) — 2025 targets
+// Budget & Forecast data by month (index 0=Jan, 11=Dec) — 2026 targets
 const BUDGET_REV = [387192,647192,759375,889375,927263,969462,468279,382962,306435,356435,678434,893552];
 const FORECAST_BACKLOG = [675732.40,674469.00,258334.99,149681.78,279993.09,954512.40,322726.40,149960.40,149960.40,149960.40,149960.40,777710.40];
 const VARIANCE_PCT = [175,104,34,17,30,98,69,39,49,42,22,87];
@@ -1538,11 +1585,11 @@ function buildRevCostChart(d) {
 
   if (showForecast) {
     const forecastData = keys.map(k => {
-      // Only show for 2025 buckets
-      if (buckets[k].year === 2025) return getMonthlyVal(FORECAST_BACKLOG, k, true);
+      // Only show for 2026 buckets
+      if (buckets[k].year === 2026) return getMonthlyVal(FORECAST_BACKLOG, k, true);
       return null;
     });
-    series.push({ name: 'Forecast Backlog (2025)', type: 'area', data: forecastData });
+    series.push({ name: 'Forecast Backlog (2026)', type: 'area', data: forecastData });
     colors.push('#8b5cf6');
     strokeW.push(2);
     dashArr.push(0);
@@ -1551,10 +1598,10 @@ function buildRevCostChart(d) {
 
   if (showVariance) {
     const varianceData = keys.map(k => {
-      if (buckets[k].year === 2025) return VARIANCE_PCT[buckets[k].month] || null;
+      if (buckets[k].year === 2026) return VARIANCE_PCT[buckets[k].month] || null;
       return null;
     });
-    series.push({ name: 'Variance % (2025)', type: 'line', data: varianceData });
+    series.push({ name: 'Variance % (2026)', type: 'line', data: varianceData });
     colors.push('#f43f5e');
     strokeW.push(3);
     dashArr.push(0);
@@ -1563,7 +1610,7 @@ function buildRevCostChart(d) {
 
   // Compute auto max from data, then apply slider scale
   const allVals = keys.flatMap(k => [buckets[k].rev, buckets[k].cost]).concat(budgetData);
-  if (showForecast) keys.forEach(k => { if (buckets[k].year === 2025) allVals.push(FORECAST_BACKLOG[buckets[k].month] || 0); });
+  if (showForecast) keys.forEach(k => { if (buckets[k].year === 2026) allVals.push(FORECAST_BACKLOG[buckets[k].month] || 0); });
   const dataMax = Math.max(...allVals.filter(v => v != null && v > 0), 1);
   const scaledMax = revCostYMax < 100 ? Math.round(dataMax * (revCostYMax / 100)) : undefined;
 
@@ -2424,7 +2471,7 @@ function renderEquipmentGantt(data) {
     const furthest = t.calibEnd && t.calibEnd > t.end ? t.calibEnd : t.end;
     if (furthest > maxDate) maxDate = new Date(furthest);
   }));
-  const calibColorMap = { ok: '#7AB800', warning: '#E98300', critical: '#E98300', expired: '#C82882', unknown: '#A6BCC6' };
+  const calibColorMap = { ok: '#7AB800', warning: '#eab308', critical: '#E98300', expired: '#C82882', unknown: '#A6BCC6' };
   const dayMs = 864e5, rowH = 32;
   const ganttScale = equipmentGanttScale || 'month';
   let dayWidth = 18;
@@ -2667,7 +2714,7 @@ function renderEquipmentGantt(data) {
   grid.addEventListener('scroll', () => { names.scrollTop = grid.scrollTop; });
   const legend = document.createElement('div');
   legend.className = 'gantt-legend';
-  [['Calibrated (>3mo)', '#7AB800'], ['Next to calibrate (1-3mo)', '#E98300'], ['Next to calibrate (this month)', '#E98300'], ['Calibration expired', '#C82882']].forEach(([label, color]) => {
+  [['Calibrated (>3mo)', '#7AB800'], ['Next to calibrate (1-3mo)', '#eab308'], ['Next to calibrate (this month)', '#E98300'], ['Calibration expired', '#C82882']].forEach(([label, color]) => {
     const item = document.createElement('div');
     item.className = 'gantt-legend-item';
     item.innerHTML = '<div class="gantt-legend-dot" style="background:' + color + '"></div>' + esc(label);
@@ -2840,9 +2887,9 @@ function renderEquipmentTable(data) {
 function renderEquipmentCharts(d) {
   const calibGroups = { ok: 0, warning: 0, critical: 0, expired: 0 };
   d.forEach(r => { const s = getCalibStatus(r['Calibration End Date']); if (calibGroups[s] !== undefined) calibGroups[s]++; });
-  const calibLabels = ['Calibrated', 'Next to calibrate', 'Next to calibrate', 'Calibration expired'];
+  const calibLabels = ['Calibrated (>3mo)', 'Next to calibrate (1-3mo)', 'Next to calibrate (this month)', 'Calibration expired'];
   const calibValues = [calibGroups.ok, calibGroups.warning, calibGroups.critical, calibGroups.expired];
-  const calibColors = ['#7AB800', '#E98300', '#E98300', '#C82882'];
+  const calibColors = ['#7AB800', '#eab308', '#E98300', '#C82882'];
   const calibOpts = {
     chart: { type: 'donut', height: 280 },
     series: calibValues, labels: calibLabels, colors: calibColors,
