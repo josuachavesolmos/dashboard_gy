@@ -1262,7 +1262,7 @@ function renderQuote() {
     { label: 'Total Revenue', value: rev, format: 'cur', sub: 'Base currency (USD)', accent: 'var(--success)' },
     { label: 'Total Cost', value: weighted, format: 'cur', sub: 'Cost sum total', accent: 'var(--info)' },
     { label: 'Avg CMR', value: cmr, format: 'pct', sub: 'Contribution margin', accent: 'var(--warning)' },
-    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' won / ' + totalDateOnly + ' total quotes', accent: 'var(--warm)' }
+    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' accepted / ' + totalDateOnly + ' total quotes', accent: 'var(--warm)' }
   ]);
 
   // Chart 1: Sales Funnel (date-only filter, ignores other filters)
@@ -1285,7 +1285,7 @@ function renderQuote() {
 
   // Chart 2: Revenue by Segment (bar chart, all filters)
   const sg = groupBy(d, 'Segment');
-  const se = topN(Object.fromEntries(Object.entries(sg).map(([k, v]) => [k, sumBy(v, 'Sum Total Base Currency')])));
+  const se = topN(Object.fromEntries(Object.entries(sg).map(([k, v]) => [k, sumBy(v, 'Sum Total')])));
   const segRevOpts = {
     chart: { type: 'bar', height: 280 },
     series: [{ data: se.map(e => e[1]) }],
@@ -1301,7 +1301,7 @@ function renderQuote() {
 
   // Chart 3: Top 10 Clients
   const cg = groupBy(d, 'Customer');
-  const ce = topN(Object.fromEntries(Object.entries(cg).map(([k, v]) => [k, sumBy(v, 'Sum Total Base Currency')])));
+  const ce = topN(Object.fromEntries(Object.entries(cg).map(([k, v]) => [k, sumBy(v, 'Sum Total')])));
   const clientsOpts = {
     chart: { type: 'bar', height: 280 },
     series: [{ data: ce.map(e => e[1]) }],
@@ -1322,7 +1322,7 @@ function renderQuote() {
     chart: { type: 'bar', height: 280 },
     series: [
       { name: 'Weighted', data: pl.map(p => sumBy(pg[p], 'Weighted Probability Sum')) },
-      { name: 'Total', data: pl.map(p => sumBy(pg[p], 'Sum Total Base Currency')) }
+      { name: 'Total', data: pl.map(p => sumBy(pg[p], 'Sum Total')) }
     ],
     colors: [COLORS[0], COLORS[2]],
     plotOptions: { bar: { borderRadius: 5, columnWidth: '55%' } },
@@ -1335,7 +1335,7 @@ function renderQuote() {
 
   // Chart 5: Top Products
   const prg = groupBy(d, 'Axess Product');
-  const pre = topN(Object.fromEntries(Object.entries(prg).map(([k, v]) => [k, sumBy(v, 'Sum Total Base Currency')])));
+  const pre = topN(Object.fromEntries(Object.entries(prg).map(([k, v]) => [k, sumBy(v, 'Sum Total')])));
   const productsOpts = {
     chart: { type: 'bar', height: 280 },
     series: [{ data: pre.map(e => e[1]) }],
@@ -1351,7 +1351,7 @@ function renderQuote() {
 
   // Chart 6: Revenue by Responsible
   const rg = groupBy(d, 'Responsible');
-  const re = topN(Object.fromEntries(Object.entries(rg).map(([k, v]) => [k.split('@')[0].replace(/\./g, ' ').trim(), sumBy(v, 'Sum Total Base Currency')])));
+  const re = topN(Object.fromEntries(Object.entries(rg).map(([k, v]) => [k.split('@')[0].replace(/\./g, ' ').trim(), sumBy(v, 'Sum Total')])));
   const respOpts = {
     chart: { type: 'bar', height: 280 },
     series: [{ data: re.map(e => e[1]) }],
@@ -1416,7 +1416,7 @@ function renderQuote() {
 
   // Chart 11: Revenue by Client (bar chart)
   const revClientG = groupBy(d, 'Customer');
-  const revClientE = topN(Object.fromEntries(Object.entries(revClientG).map(([k, v]) => [k, sumBy(v, 'Sum Total Base Currency')])));
+  const revClientE = topN(Object.fromEntries(Object.entries(revClientG).map(([k, v]) => [k, sumBy(v, 'Sum Total')])));
   const revClientOpts = {
     chart: { type: 'bar', height: 280 },
     series: [{ data: revClientE.map(e => e[1]) }],
@@ -1557,7 +1557,7 @@ function buildRevCostChart(d) {
       key = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
     }
     if (!buckets[key]) buckets[key] = { rev: 0, cost: 0, month: dt.getMonth(), year: dt.getFullYear() };
-    buckets[key].rev += (parseFloat(r['Sum Total Base Currency']) || 0);
+    buckets[key].rev += (parseFloat(r['Sum Total']) || 0);
     buckets[key].cost += (parseFloat(r['Cost Sum Total']) || parseFloat(r['cost sum total']) || parseFloat(r['Cost Total']) || 0);
   });
   const keys = Object.keys(buckets).sort();
@@ -2819,7 +2819,7 @@ function renderEquipmentSummaryTable(data) {
     const tr = document.createElement('tr');
     tr.innerHTML =
       '<td>' + esc(r.description) + '</td>' +
-      '<td><span class="equip-status-badge" style="background:' + stColor + '2A;color:#fff;border:1px solid rgba(0,0,0,0.08)">' + esc(r.status || '-') + '</span></td>' +
+      '<td><span class="equip-status-badge" style="background:' + stColor + '2A;color:' + stColor + ';border:1px solid rgba(0,0,0,0.08)">' + esc(r.status || '-') + '</span></td>' +
       '<td>' + esc(r.installation || '-') + '</td>' +
       '<td>' + esc(r.client || '-') + '</td>' +
       '<td>' + calibBadge + '</td>' +
@@ -3086,6 +3086,34 @@ function renderMaster() {
 
 // ─── Export charts as PNG ───
 function exportCharts() {
+  // Equipment tab: if in gantt/table view, temporarily render charts to export
+  if (activeTab === 'equipment' && equipmentView !== 'charts') {
+    const d = state.equipment.filtered;
+    const prevView = equipmentView;
+    // Temporarily show charts container to render them
+    const chartsContainer = document.getElementById('charts-equipment');
+    chartsContainer.style.display = '';
+    renderEquipmentCharts(d);
+    // Wait for charts to render, then export and restore view
+    setTimeout(() => {
+      const eqCharts = Object.entries(charts).filter(([id]) => id.startsWith('c-e'));
+      if (eqCharts.length === 0) { toast('No charts to export', 'info'); setEquipmentView(prevView); return; }
+      let pending = eqCharts.length;
+      eqCharts.forEach(([id, chart]) => {
+        if (chart && chart.dataURI) {
+          chart.dataURI().then(({ imgURI }) => {
+            const a = document.createElement('a');
+            a.href = imgURI;
+            a.download = id + '.png';
+            a.click();
+          }).finally(() => { if (--pending === 0) setEquipmentView(prevView); });
+        } else { if (--pending === 0) setEquipmentView(prevView); }
+      });
+      toast('Exporting ' + eqCharts.length + ' charts...', 'info');
+    }, 300);
+    return;
+  }
+
   const activeCharts = Object.entries(charts).filter(([id]) => id.startsWith('c-' + activeTab.charAt(0)));
   if (activeCharts.length === 0) { toast('No charts to export', 'info'); return; }
   activeCharts.forEach(([id, chart]) => {
