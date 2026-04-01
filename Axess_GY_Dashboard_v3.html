@@ -114,10 +114,14 @@ button{cursor:pointer}
 select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
 .filter-reset{align-self:end;padding:8px 18px;border-radius:var(--r-sm);background:var(--danger);color:#fff;font-size:12px;font-weight:600;transition:all .2s;min-height:38px;margin-left:auto}
 .filter-reset:hover{background:#dc2626;transform:translateY(-1px)}
+.filter-reset:disabled,.filter-reset[disabled]{opacity:.35;cursor:not-allowed;pointer-events:none}
+.page-btn{padding:4px 10px;font-size:11px;border-radius:var(--r-xs);border:1px solid var(--border-2);color:var(--text-2);font-weight:600;transition:all .2s;min-width:28px;min-height:28px;display:inline-flex;align-items:center;justify-content:center}
+.page-btn:hover:not(:disabled){border-color:var(--brand-light);color:var(--brand-light);background:var(--brand-pale)}
+.page-btn:disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
 .filter-count{font-size:11px;color:var(--text-3);align-self:center;font-family:var(--font-mono);padding:8px 0}
 
 /* ═══════════════════════ KPI CARDS ═══════════════════════ */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:24px}
 .kpi-card{background:var(--card-glass);backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:all .25s;box-shadow:var(--sh)}
 .kpi-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
 .kpi-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
@@ -212,6 +216,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
 .gantt-name-row.gantt-h-tech{background:var(--bg-2);font-weight:700;font-size:12px}
 .gantt-name-row.gantt-h-project{padding-left:22px;font-weight:600;font-size:11.5px;color:var(--text)}
 .gantt-name-row.gantt-h-scope{padding-left:38px;font-size:11px;font-weight:500;color:var(--text-2)}
+.gantt-name-row.gantt-h-detail{padding-left:54px;font-size:10.5px;font-weight:400;color:var(--text-3)}
 .gantt-toggle{width:20px;height:20px;flex-shrink:0;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-2);cursor:pointer;user-select:none;transition:background .15s}
 .gantt-toggle:hover{background:var(--border)}
 .gantt-toggle-spacer{width:20px;flex-shrink:0}
@@ -265,6 +270,10 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
 .equip-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card-glass);backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);border-radius:var(--r);overflow:hidden;margin-bottom:18px;box-shadow:var(--sh)}
 .equip-table thead{background:var(--bg)}
 .equip-table th{padding:10px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-3);text-align:left;border-bottom:2px solid var(--border)}
+.equip-table th.sortable{cursor:pointer;user-select:none;position:relative;padding-right:22px;transition:color .2s}
+.equip-table th.sortable:hover{color:var(--brand-light)}
+.equip-table th.sortable .sort-arrow{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;opacity:.4}
+.equip-table th.sortable.sort-active .sort-arrow{opacity:1;color:var(--brand-light)}
 .equip-table td{padding:10px 14px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border)}
 .equip-table tr:hover td{background:var(--brand-pale)}
 .equip-table .row-critical td{background:rgba(200,40,130,0.06)}
@@ -364,7 +373,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
       <span class="nav-badge" id="badge-quote">--</span>
     </button>
     <button class="nav-item" role="tab" aria-selected="false" data-tab="personnel" onclick="switchTab('personnel')">
-      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="9" r="3"/><path d="M4.5 6.5h9"/><path d="M5 6.5c0-2.5 1.8-4.5 4-4.5s4 2 4 4.5"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
       <span class="nav-label">Personnel</span>
       <span class="nav-badge" id="badge-personnel">--</span>
     </button>
@@ -379,8 +388,16 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
       <span class="nav-label">Master Project</span>
       <span class="nav-badge" id="badge-master">--</span>
     </button>
+    <button class="nav-item" role="tab" aria-selected="false" data-tab="leads" onclick="switchTab('leads')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></span>
+      <span class="nav-label">Leads Log</span>
+      <span class="nav-badge" id="badge-leads">--</span>
+    </button>
   </nav>
   <div class="sb-footer">
+    <a href="#" class="sb-toggle" style="text-decoration:none;justify-content:center;font-size:11px;opacity:.6;padding:8px 14px">
+      <span>Powered By OLMO inc</span>
+    </a>
     <button class="sb-theme" onclick="toggleTheme()" aria-label="Toggle dark mode">
       <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       <span>Theme</span>
@@ -400,6 +417,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
     <button data-tab="personnel" onclick="switchTab('personnel')">Personnel</button>
     <button data-tab="equipment" onclick="switchTab('equipment')">Equipment</button>
     <button data-tab="master" onclick="switchTab('master')">Master Project</button>
+    <button data-tab="leads" onclick="switchTab('leads')">Leads Log</button>
   </div>
 
   <!-- Topbar -->
@@ -430,6 +448,11 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
         <span class="pill-dot loaded" id="dot-master"></span>
         <span class="pill-label">Master Project</span>
         <input type="file" accept=".xlsx,.xls,.csv" onchange="handleUpload(this,'master')">
+      </label>
+      <label class="upload-pill" aria-label="Upload Leads Excel file">
+        <span class="pill-dot loaded" id="dot-leads"></span>
+        <span class="pill-label">Leads</span>
+        <input type="file" accept=".xlsx,.xls,.csv" onchange="handleUpload(this,'leads')">
       </label>
       <button class="btn-export" onclick="exportCharts()" aria-label="Export charts as PNG">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -535,6 +558,24 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
       <div class="chart-grid" id="charts-master"></div>
     </div>
 
+    <!-- ═══════ TAB 5: LEADS LOG ═══════ -->
+    <div class="tab-panel" id="panel-leads" role="tabpanel" aria-label="Leads Log">
+      <div class="filters-bar" id="filters-leads">
+        <div class="filter-group"><label for="l-from">From</label><input type="date" class="filter-input" id="l-from" onchange="applyFilters('leads')"></div>
+        <div class="filter-group"><label for="l-to">To</label><input type="date" class="filter-input" id="l-to" onchange="applyFilters('leads')"></div>
+        <div class="filter-group"><label for="l-status">Status</label><select class="filter-input" id="l-status" onchange="applyFilters('leads')"><option value="">All</option></select></div>
+        <div class="filter-group"><label for="l-responsible">Responsible</label><select class="filter-input" id="l-responsible" onchange="applyFilters('leads')"><option value="">All</option></select></div>
+        <div class="filter-group"><label for="l-entity">Entity</label><select class="filter-input" id="l-entity" onchange="applyFilters('leads')"><option value="">All</option></select></div>
+        <div class="filter-group"><label for="l-service">Service</label><select class="filter-input" id="l-service" onchange="applyFilters('leads')"><option value="">All</option></select></div>
+        <div class="filter-group"><label for="l-segment">Segment</label><select class="filter-input" id="l-segment" onchange="applyFilters('leads')"><option value="">All</option></select></div>
+        <span class="filter-count" id="l-count"></span>
+        <button class="filter-reset" onclick="resetFilters('leads')">Clear All</button>
+      </div>
+      <div class="kpi-row" id="kpi-leads"></div>
+      <div class="chart-grid" id="charts-leads"></div>
+      <div id="leads-table-view"></div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -552,7 +593,7 @@ const STATUS_COLORS = {
   'Onshore': '#4D5357',
   'Available': '#7AB800',
   'Training': '#E98300',
-  'Standby': '#589199',
+  'Standby': '#6366F1',
   'Annual leave': '#A092B4',
   'Days Off': '#A6BCC6',
   'Travel': '#C9963A',
@@ -569,7 +610,9 @@ let activeTab = 'quote';
 let personnelView = 'gantt';
 let equipmentView = 'gantt';
 let personnelGanttScale = 'month'; // month | week | day
+let personnelGanttHierarchy = 'personnel'; // 'personnel' | 'installation' | 'scope'
 let equipmentGanttScale = 'month'; // month | week | day
+let equipmentGanttHierarchy = 'flat'; // 'flat' = Equipment list | 'client' = Client→Installation→Equipment
 let quoteTimePeriod = 'month'; // 'week', 'month', 'year'
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -577,7 +620,8 @@ const state = {
   quote: { raw: [], filtered: [] },
   personnel: { raw: [], filtered: [] },
   equipment: { raw: [], filtered: [] },
-  master: { raw: [], filtered: [] }
+  master: { raw: [], filtered: [] },
+  leads: { raw: [], filtered: [] }
 };
 
 // ─── Utility: Sanitize text ───
@@ -708,7 +752,7 @@ function switchTab(tab) {
   document.getElementById('panel-' + tab).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => { n.classList.toggle('active', n.dataset.tab === tab); n.setAttribute('aria-selected', n.dataset.tab === tab); });
   document.querySelectorAll('.mobile-nav button').forEach(n => n.classList.toggle('active', n.dataset.tab === tab));
-  const titles = { quote: 'Order Backlog & Revenue', personnel: 'Personnel & Scheduling', equipment: 'Equipment & Calibration', master: 'Work Orders & Billing' };
+  const titles = { quote: 'Order Backlog & Revenue', personnel: 'Personnel & Scheduling', equipment: 'Equipment & Calibration', master: 'Work Orders & Billing', leads: 'Leads Log' };
   document.getElementById('top-title').textContent = titles[tab];
   setTimeout(() => Object.values(charts).forEach(c => { if (c && c.updateOptions) c.updateOptions({}, false, false, false); }), 50);
 }
@@ -823,10 +867,12 @@ function generateDemoData() {
   state.quote.raw = [];
   for (let i = 0; i < 120; i++) {
     const dt = new Date(2026, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+    const estStart = new Date(dt.getTime() + (7 + Math.floor(Math.random() * 60)) * 864e5);
     const prob = [10, 20, 30, 50, 70, 80, 90, 100][Math.floor(Math.random() * 8)];
     const revenue = Math.round(50000 + Math.random() * 2500000);
     state.quote.raw.push({
       'Quote Date': dt.toISOString().split('T')[0],
+      'Estimated Start Date': estStart.toISOString().split('T')[0],
       'Status': statuses[Math.floor(Math.random() * statuses.length)],
       'Segment': segments[Math.floor(Math.random() * segments.length)],
       'Customer': customers[Math.floor(Math.random() * customers.length)],
@@ -911,11 +957,40 @@ function generateDemoData() {
     });
   }
 
+  // Leads demo data
+  const leadStatuses = ['', 'In Progress', 'In Progress', ''];
+  const leadEntities = ['Axess AS Norway', 'Axess Offshore Africa', 'Axess Technologies AS', 'Axess Connect AS', 'Axess AS'];
+  const leadServices = ['QC', 'Engineering', 'LEC', 'Crane', 'SIM', 'NDT', 'Rope Access', 'Subsea'];
+  const leadSegments = ['FPSO', 'Rig', 'Platform', 'Onshore', 'Wind', ''];
+  const leadResponsibles = ['Renaldo Kryns', 'Marte Tostrup', 'Joachim Andreassen', 'Herman Horgen', 'Jan Owe Stenløs', 'Robert Ingdal'];
+  const leadCustomers = ['ExxonMobil', 'Odfjell Drilling', 'Seadrill', 'SBM Offshore', 'TechnipFMC', 'Macro offshore', 'Yinson', 'Noble Corp'];
+  const leadInstallations = ['Liza Destiny FPSO', 'FPSO Agogo', 'Haven', 'Deepsea Bollsta', 'West Elara', 'Prosperity FPSO', ''];
+  state.leads.raw = [];
+  for (let i = 0; i < 80; i++) {
+    const created = new Date(2026, Math.floor(Math.random() * 3), 1 + Math.floor(Math.random() * 28));
+    const hasDue = Math.random() > 0.5;
+    const due = hasDue ? new Date(created.getTime() + (14 + Math.floor(Math.random() * 90)) * 864e5) : '';
+    state.leads.raw.push({
+      'Created': created,
+      'Title': ['Certification of Lifting Equipment', 'Flare System Integrity Management', 'Crane Surveillance Program', 'NDT Inspection Campaign', 'Rope Access Support', 'Subsea Pipeline Survey', 'Engineering Support - Hook-up', 'Coating Inspection Scope'][Math.floor(Math.random() * 8)] + ' - ' + leadInstallations[Math.floor(Math.random() * leadInstallations.length)],
+      'Responsible': leadResponsibles[Math.floor(Math.random() * leadResponsibles.length)],
+      'Entity': leadEntities[Math.floor(Math.random() * leadEntities.length)],
+      'Status': leadStatuses[Math.floor(Math.random() * leadStatuses.length)],
+      'DueDate': due,
+      'Installation': leadInstallations[Math.floor(Math.random() * leadInstallations.length)],
+      'Customer': leadCustomers[Math.floor(Math.random() * leadCustomers.length)],
+      'Head Customer': leadCustomers[Math.floor(Math.random() * leadCustomers.length)],
+      'Segment': leadSegments[Math.floor(Math.random() * leadSegments.length)],
+      'Service': leadServices[Math.floor(Math.random() * leadServices.length)]
+    });
+  }
+
   // Init filtered = raw
   state.quote.filtered = [...state.quote.raw];
   state.personnel.filtered = [...state.personnel.raw];
   state.equipment.filtered = [...state.equipment.raw];
   state.master.filtered = [...state.master.raw];
+  state.leads.filtered = [...state.leads.raw];
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -952,6 +1027,7 @@ function handleUpload(input, type) {
         }
       }
       else if (type === 'master') processMaster(wb);
+      else if (type === 'leads') processLeads(wb);
       dot.className = 'pill-dot loaded';
       toast(file.name + ' loaded successfully', 'success');
       renderTab(type);
@@ -1046,6 +1122,11 @@ function processMaster(wb) {
   state.master.raw = rows;
   state.master.filtered = [...rows];
 }
+function processLeads(wb) {
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  state.leads.raw = XLSX.utils.sheet_to_json(ws, { defval: '', cellDates: true });
+  state.leads.filtered = [...state.leads.raw];
+}
 
 // ═══════════════════════════════════════════════════════════════
 // FILTERS
@@ -1061,7 +1142,7 @@ function populateSelect(id, values) {
 function populateFilters(type) {
   const raw = state[type].raw;
   if (type === 'quote') {
-    const years = [...new Set(raw.map(r => { const d = parseDate(r['Quote Date']); return d ? d.getFullYear() : null; }).filter(Boolean))].sort((a, b) => b - a);
+    const years = [...new Set(raw.map(r => { const d = excelDate(r['Estimated Start Date']) || excelDate(r['Estimated start date']) || parseDate(r['Quote Date']); return d ? d.getFullYear() : null; }).filter(Boolean))].sort((a, b) => b - a);
     populateSelect('q-year', years.map(String));
     populateSelect('q-status', unique(raw, 'Status'));
     populateSelect('q-segment', unique(raw, 'Segment'));
@@ -1086,6 +1167,12 @@ function populateFilters(type) {
     populateSelect('m-client', unique(raw, 'Client'));
     populateSelect('m-responsible', [...new Set(raw.map(getR))].filter(Boolean).sort());
     populateSelect('m-period', unique(raw, 'PERIOD'));
+  } else if (type === 'leads') {
+    populateSelect('l-status', unique(raw, 'Status'));
+    populateSelect('l-responsible', unique(raw, 'Responsible'));
+    populateSelect('l-entity', unique(raw, 'Entity'));
+    populateSelect('l-service', unique(raw, 'Service'));
+    populateSelect('l-segment', unique(raw, 'Segment'));
   }
 }
 
@@ -1098,8 +1185,8 @@ function applyFilters(type) {
     const segment = document.getElementById('q-segment').value;
     const customer = document.getElementById('q-customer').value;
     const responsible = document.getElementById('q-responsible').value;
-    if (from) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x >= new Date(from); });
-    if (to) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x <= new Date(to + 'T23:59:59'); });
+    if (from) d = d.filter(r => { const x = excelDate(r['Estimated Start Date']) || excelDate(r['Estimated start date']) || parseDate(r['Quote Date']); return x && x >= new Date(from); });
+    if (to) d = d.filter(r => { const x = excelDate(r['Estimated Start Date']) || excelDate(r['Estimated start date']) || parseDate(r['Quote Date']); return x && x <= new Date(to + 'T23:59:59'); });
     if (status) d = d.filter(r => r['Status'] === status);
     if (segment) d = d.filter(r => r['Segment'] === segment);
     if (customer) d = d.filter(r => r['Customer'] === customer);
@@ -1145,6 +1232,21 @@ function applyFilters(type) {
     if (client) d = d.filter(r => (r['Client'] || '').toString().trim() === client);
     if (responsible) d = d.filter(r => getR(r) === responsible);
     if (period) d = d.filter(r => (r['PERIOD'] || '').toString() === period);
+  } else if (type === 'leads') {
+    const from = document.getElementById('l-from').value;
+    const to = document.getElementById('l-to').value;
+    const status = document.getElementById('l-status').value;
+    const responsible = document.getElementById('l-responsible').value;
+    const entity = document.getElementById('l-entity').value;
+    const service = document.getElementById('l-service').value;
+    const segment = document.getElementById('l-segment').value;
+    if (from) d = d.filter(r => { const x = excelDate(r['Created']) || parseDate(r['Created']); return x && x >= new Date(from); });
+    if (to) d = d.filter(r => { const x = excelDate(r['Created']) || parseDate(r['Created']); return x && x <= new Date(to + 'T23:59:59'); });
+    if (status) d = d.filter(r => (r['Status'] || '').toString().trim() === status);
+    if (responsible) d = d.filter(r => (r['Responsible'] || '').toString().trim() === responsible);
+    if (entity) d = d.filter(r => (r['Entity'] || '').toString().trim() === entity);
+    if (service) d = d.filter(r => (r['Service'] || '').toString().trim() === service);
+    if (segment) d = d.filter(r => (r['Segment'] || '').toString().trim() === segment);
   }
   state[type].filtered = d;
   updateBadge(type);
@@ -1195,6 +1297,14 @@ function resetFilters(type) {
     document.getElementById('m-client').value = '';
     document.getElementById('m-responsible').value = '';
     document.getElementById('m-period').value = '';
+  } else if (type === 'leads') {
+    document.getElementById('l-from').value = '';
+    document.getElementById('l-to').value = '';
+    document.getElementById('l-status').value = '';
+    document.getElementById('l-responsible').value = '';
+    document.getElementById('l-entity').value = '';
+    document.getElementById('l-service').value = '';
+    document.getElementById('l-segment').value = '';
   }
   applyFilters(type);
 }
@@ -1202,7 +1312,7 @@ function resetFilters(type) {
 function updateBadge(type) {
   const badge = document.getElementById('badge-' + type);
   badge.textContent = state[type].filtered.length;
-  const prefixMap = { quote: 'q', personnel: 'p', equipment: 'e', master: 'm' };
+  const prefixMap = { quote: 'q', personnel: 'p', equipment: 'e', master: 'm', leads: 'l' };
   const countEl = document.getElementById(prefixMap[type] + '-count');
   const total = state[type].raw.length;
   const filtered = state[type].filtered.length;
@@ -1233,6 +1343,7 @@ function renderTabContent(type) {
   else if (type === 'personnel') renderPersonnel();
   else if (type === 'equipment') renderEquipment();
   else if (type === 'master') renderMaster();
+  else if (type === 'leads') renderLeads();
 }
 
 // ─── Helper: date-only filtered quotes (ignores status/segment/customer/responsible filters) ───
@@ -1240,8 +1351,8 @@ function getDateFilteredQuotes() {
   let d = [...state.quote.raw];
   const from = document.getElementById('q-from').value;
   const to = document.getElementById('q-to').value;
-  if (from) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x >= new Date(from); });
-  if (to) d = d.filter(r => { const x = parseDate(r['Quote Date']); return x && x <= new Date(to + 'T23:59:59'); });
+  if (from) d = d.filter(r => { const x = excelDate(r['Estimated Start Date']) || excelDate(r['Estimated start date']) || parseDate(r['Quote Date']); return x && x >= new Date(from); });
+  if (to) d = d.filter(r => { const x = excelDate(r['Estimated Start Date']) || excelDate(r['Estimated start date']) || parseDate(r['Quote Date']); return x && x <= new Date(to + 'T23:59:59'); });
   return d;
 }
 
@@ -1255,15 +1366,32 @@ function renderQuote() {
   const weighted = sumBy(d, 'Cost Sum Total');
   const cmr = avgBy(d, 'CMR Total');
   const acc = d.filter(r => r['Status'] === 'Accepted').length;
-  const wr = totalDateOnly > 0 ? (acc / totalDateOnly * 100) : 0;
+  const wr = total > 0 ? (acc / total * 100) : 0;
 
-  renderKPIs('kpi-quote', [
+  // Target card: show when filtering year 2026 + status Accepted
+  const BUDGET_TARGET = 7665956;
+  const yearVal = document.getElementById('q-year').value;
+  const fromVal = document.getElementById('q-from').value;
+  const toVal = document.getElementById('q-to').value;
+  const statusVal = document.getElementById('q-status').value;
+  const is2026 = yearVal === '2026' || (fromVal && fromVal.startsWith('2026')) || (toVal && toVal.startsWith('2026'));
+  const isAccepted = statusVal === 'Accepted';
+  const showTarget = is2026 && isAccepted;
+
+  const targetCard = showTarget ? (() => {
+    const remaining = Math.max(0, BUDGET_TARGET > 0 ? ((BUDGET_TARGET - rev) / BUDGET_TARGET * 100) : 0);
+    return { label: 'To Target', value: remaining, format: 'pct', sub: fmtCur(rev) + ' of ' + fmtCur(BUDGET_TARGET) + ' budget', accent: remaining <= 0 ? 'var(--success)' : 'var(--warm)' };
+  })() : null;
+
+  const kpis = [
     { label: 'Total Quotes', value: total, format: 'int', sub: d.filter(r => r['Status'] === 'Draft').length + ' drafts pending', accent: 'var(--brand)' },
     { label: 'Total Revenue', value: rev, format: 'cur', sub: 'Base currency (USD)', accent: 'var(--success)' },
+    ...(targetCard ? [targetCard] : []),
     { label: 'Total Cost', value: weighted, format: 'cur', sub: 'Cost sum total', accent: 'var(--info)' },
     { label: 'Avg CMR', value: cmr, format: 'pct', sub: 'Contribution margin', accent: 'var(--warning)' },
-    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' accepted / ' + totalDateOnly + ' total quotes', accent: 'var(--warm)' }
-  ]);
+    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' accepted / ' + total + ' total quotes', accent: 'var(--warm)' }
+  ];
+  renderKPIs('kpi-quote', kpis);
 
   // Chart 1: Sales Funnel (date-only filter, ignores other filters)
   const so = ['Draft', 'Sent', 'Accepted', 'Rejected'];
@@ -1299,19 +1427,17 @@ function renderQuote() {
     tooltip: { y: { formatter: v => fmtCur(v) } }
   };
 
-  // Chart 3: Top 10 Clients
+  // Chart 3: Top 10 Clients (Donut)
   const cg = groupBy(d, 'Customer');
   const ce = topN(Object.fromEntries(Object.entries(cg).map(([k, v]) => [k, sumBy(v, 'Sum Total')])));
   const clientsOpts = {
-    chart: { type: 'bar', height: 280 },
-    series: [{ data: ce.map(e => e[1]) }],
-    plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '60%', distributed: true } },
-    colors: COLORS,
-    dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '11px', fontWeight: '500' }, formatter: v => fmtCur(v) },
-    xaxis: { categories: ce.map(e => e[0]), labels: { formatter: v => fmt(+v) } },
-    yaxis: { labels: { style: { fontSize: '11px' }, maxWidth: 160 } },
-    grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
-    legend: { show: false },
+    chart: { type: 'donut', height: 300 },
+    series: ce.map(e => e[1]),
+    labels: ce.map(e => e[0]),
+    colors: COLORS.slice(0, ce.length),
+    plotOptions: { pie: { donut: { size: '55%', labels: { show: true, total: { show: true, label: 'Total', formatter: w => fmtCur(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) } } } } },
+    dataLabels: { enabled: false },
+    legend: { show: true, position: 'right', fontSize: '11px', labels: { useSeriesColors: true }, formatter: (name, opts) => name + ' — ' + fmtCur(opts.w.globals.series[opts.seriesIndex]) },
     tooltip: { y: { formatter: v => fmtCur(v) } }
   };
 
@@ -1333,20 +1459,21 @@ function renderQuote() {
     tooltip: { shared: true, intersect: false, y: { formatter: v => fmtCur(v) } }
   };
 
-  // Chart 5: Top Products
+  // Chart 5: Top Products (Polar Area)
   const prg = groupBy(d, 'Axess Product');
   const pre = topN(Object.fromEntries(Object.entries(prg).map(([k, v]) => [k, sumBy(v, 'Sum Total')])));
   const productsOpts = {
-    chart: { type: 'bar', height: 280 },
-    series: [{ data: pre.map(e => e[1]) }],
-    plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '60%', distributed: true } },
-    colors: COLORS.slice(3),
-    dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '11px', fontWeight: '500' }, formatter: v => fmtCur(v) },
-    xaxis: { categories: pre.map(e => e[0].length > 35 ? e[0].substring(0, 35) + '…' : e[0]), labels: { formatter: v => fmt(+v) } },
-    yaxis: { labels: { style: { fontSize: '11px' }, maxWidth: 160 } },
-    grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
-    legend: { show: false },
-    tooltip: { y: { formatter: v => fmtCur(v) } }
+    chart: { type: 'polarArea', height: 320 },
+    series: pre.map(e => e[1]),
+    labels: pre.map(e => e[0]),
+    colors: COLORS.slice(0, pre.length),
+    stroke: { width: 1, colors: ['var(--card)'] },
+    fill: { opacity: 0.85 },
+    plotOptions: { polarArea: { rings: { strokeWidth: 1, strokeColor: 'var(--border)' }, spokes: { strokeWidth: 1, connectorColors: 'var(--border)' } } },
+    dataLabels: { enabled: false },
+    legend: { show: true, position: 'right', fontSize: '11px', labels: { useSeriesColors: true }, formatter: function(name, opts) { return (name.length > 28 ? name.substring(0, 28) + '…' : name) + ' — ' + fmtCur(opts.w.globals.series[opts.seriesIndex]); } },
+    tooltip: { y: { formatter: v => fmtCur(v) } },
+    yaxis: { show: false }
   };
 
   // Chart 6: Revenue by Responsible
@@ -1365,10 +1492,17 @@ function renderQuote() {
     tooltip: { y: { formatter: v => fmtCur(v) } }
   };
 
-  // Chart 7: Timeline (by Quote Date)
+  // Chart 7: Timeline (by Quote Date) — filtered locally by timelineYearFilter
   const byM = {};
-  d.forEach(r => { const dt = parseDate(r['Quote Date']); if (dt) { const k = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0'); byM[k] = (byM[k] || 0) + 1; } });
+  d.forEach(r => {
+    const dt = parseDate(r['Quote Date']);
+    if (!dt) return;
+    if (timelineYearFilter && dt.getFullYear() !== +timelineYearFilter) return;
+    const k = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
+    byM[k] = (byM[k] || 0) + 1;
+  });
   const tl = Object.keys(byM).sort();
+  const timelineTag = timelineYearFilter ? timelineYearFilter : 'All Years';
   const timelineOpts = {
     chart: { type: 'area', height: 280, zoom: { enabled: true, type: 'x' } },
     series: [{ name: 'Quotes', data: tl.map(k => byM[k]) }],
@@ -1452,7 +1586,7 @@ function renderQuote() {
     { id: 'c-q-prob', title: 'Pipeline by Probability', options: probOpts },
     { id: 'c-q-products', title: 'Top Products', tag: 'by Revenue', options: productsOpts },
     { id: 'c-q-resp', title: 'Revenue by Responsible', options: respOpts },
-    { id: 'c-q-timeline', title: 'Quotes Timeline', tag: 'by Quote Date', options: timelineOpts, wide: true },
+    { id: 'c-q-timeline', title: 'Quotes Timeline', tag: 'by Quote Date — ' + timelineTag, options: timelineOpts, wide: true },
     { id: 'c-q-cmr', title: 'CMR % by Client', options: cmrOpts },
     { id: 'c-q-qsseg', title: 'Quotes by Segment', options: qsSegOpts },
     { id: 'c-q-funnel', title: 'Sales Funnel', tag: 'by Status', options: funnelOpts },
@@ -1528,6 +1662,28 @@ function renderQuote() {
         header.appendChild(controls);
       }
     }
+
+    // Inject year buttons into the Quotes Timeline chart header
+    const tlCard = document.getElementById('c-q-timeline');
+    if (tlCard) {
+      const tlHeader = tlCard.parentElement.querySelector('.chart-header');
+      if (tlHeader && !tlHeader.querySelector('.chart-controls')) {
+        const tlControls = document.createElement('div');
+        tlControls.className = 'chart-controls';
+        const yearDiv = document.createElement('div');
+        yearDiv.style.cssText = 'display:flex;gap:3px';
+        ['', '2024', '2025', '2026'].forEach(y => {
+          const btn = document.createElement('button');
+          btn.textContent = y || 'All';
+          btn.className = 'view-btn' + (timelineYearFilter === y ? ' active' : '');
+          btn.style.cssText = 'padding:4px 12px;font-size:10px;min-height:26px';
+          btn.onclick = function() { timelineYearFilter = y; renderQuote(); };
+          yearDiv.appendChild(btn);
+        });
+        tlControls.appendChild(yearDiv);
+        tlHeader.appendChild(tlControls);
+      }
+    }
   });
 }
 
@@ -1538,12 +1694,13 @@ const VARIANCE_PCT = [175,104,34,17,30,98,69,39,49,42,22,87];
 const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 let showForecast = false;
 let showVariance = false;
+let timelineYearFilter = '';
 let revCostYMax = 100; // percentage of auto max (10-100)
 
 function buildRevCostChart(d) {
   const buckets = {};
   d.forEach(r => {
-    const dt = parseDate(r['Quote Date']);
+    const dt = excelDate(r['Estimated Start Date']) || excelDate(r['Estimated start date']) || excelDate(r['Quote Date']);
     if (!dt) return;
     let key;
     if (quoteTimePeriod === 'week') {
@@ -1812,6 +1969,10 @@ function setPersonnelGanttScale(scale) {
   personnelGanttScale = scale;
   if (personnelView === 'gantt') renderPersonnel();
 }
+function setPersonnelGanttHierarchy(mode) {
+  personnelGanttHierarchy = mode;
+  if (personnelView === 'gantt') renderPersonnel();
+}
 
 function renderPersonnelCharts(d) {
   // Status Donut
@@ -1917,28 +2078,79 @@ function renderPersonnelCharts(d) {
 }
 
 // ─── GANTT CHART (Personnel) ───
-function buildPersonnelGanttHierarchy(techMap, techNames) {
+// By Personnel: Personnel → Installation → Scope
+function buildHierarchyByPersonnel(techMap, techNames) {
   const rows = [];
   techNames.forEach((techName, ti) => {
     const tasks = techMap[techName];
-    const byClient = {};
+    const byInstall = {};
     tasks.forEach(t => {
-      const c = (t.client || '').trim() || '(No project)';
+      const inst = (t.install || '').trim() || '(No installation)';
       const sc = (t.scope || '').trim() || '(No scope)';
-      if (!byClient[c]) byClient[c] = {};
-      if (!byClient[c][sc]) byClient[c][sc] = [];
-      byClient[c][sc].push(t);
+      if (!byInstall[inst]) byInstall[inst] = {};
+      if (!byInstall[inst][sc]) byInstall[inst][sc] = [];
+      byInstall[inst][sc].push(t);
     });
-    const clients = Object.keys(byClient).sort();
     rows.push({ kind: 'tech', ti, techName, tasks });
-    clients.forEach((client, pj) => {
-      const scopes = Object.keys(byClient[client]).sort();
-      const projKey = String(ti) + '-' + String(pj);
-      const projTasks = scopes.flatMap(s => byClient[client][s]);
-      rows.push({ kind: 'project', ti, pj, projKey, techName, client, tasks: projTasks });
-      scopes.forEach((scope, sk) => {
-        rows.push({ kind: 'scope', ti, pj, sk, projKey, techName, client, scope, tasks: byClient[client][scope] });
+    const installs = Object.keys(byInstall).sort();
+    installs.forEach((inst, ii) => {
+      const projKey = ti + '-' + ii;
+      const projTasks = Object.values(byInstall[inst]).flat();
+      rows.push({ kind: 'project', ti, projKey, client: inst, tasks: projTasks });
+      const scopes = Object.keys(byInstall[inst]).sort();
+      scopes.forEach(scope => {
+        rows.push({ kind: 'scope', ti, projKey, scope, tasks: byInstall[inst][scope] });
       });
+    });
+  });
+  return rows;
+}
+// By Installation: Installation → Scope → Personnel
+function buildHierarchyByInstallation(techMap, techNames) {
+  const tree = {};
+  techNames.forEach(techName => {
+    techMap[techName].forEach(t => {
+      const inst = (t.install || '').trim() || '(No installation)';
+      const sc = (t.scope || '').trim() || '(No scope)';
+      if (!tree[inst]) tree[inst] = {};
+      if (!tree[inst][sc]) tree[inst][sc] = {};
+      if (!tree[inst][sc][techName]) tree[inst][sc][techName] = [];
+      tree[inst][sc][techName].push(t);
+    });
+  });
+  const rows = [];
+  Object.keys(tree).sort().forEach((inst, ii) => {
+    const allTasks = [];
+    Object.values(tree[inst]).forEach(scopes => Object.values(scopes).forEach(tasks => allTasks.push(...tasks)));
+    rows.push({ kind: 'tech', ti: ii, techName: inst, tasks: allTasks });
+    Object.keys(tree[inst]).sort().forEach((scope, si) => {
+      const projKey = ii + '-' + si;
+      const scopeTasks = Object.values(tree[inst][scope]).flat();
+      rows.push({ kind: 'project', ti: ii, projKey, client: scope, tasks: scopeTasks });
+      Object.keys(tree[inst][scope]).sort().forEach(tech => {
+        rows.push({ kind: 'scope', ti: ii, projKey, scope: tech, tasks: tree[inst][scope][tech] });
+      });
+    });
+  });
+  return rows;
+}
+// By Scope: Scope → Personnel
+function buildHierarchyByScope(techMap, techNames) {
+  const tree = {};
+  techNames.forEach(techName => {
+    techMap[techName].forEach(t => {
+      const sc = (t.scope || '').trim() || '(No scope)';
+      if (!tree[sc]) tree[sc] = {};
+      if (!tree[sc][techName]) tree[sc][techName] = [];
+      tree[sc][techName].push(t);
+    });
+  });
+  const rows = [];
+  Object.keys(tree).sort().forEach((scope, si) => {
+    const allTasks = Object.values(tree[scope]).flat();
+    rows.push({ kind: 'tech', ti: si, techName: scope, tasks: allTasks });
+    Object.keys(tree[scope]).sort().forEach(tech => {
+      rows.push({ kind: 'project', ti: si, projKey: si + '-0', client: tech, tasks: tree[scope][tech] });
     });
   });
   return rows;
@@ -2017,7 +2229,11 @@ function renderGantt(data) {
     return;
   }
 
-  const hierarchyRows = buildPersonnelGanttHierarchy(techMap, techNames);
+  const hierarchyRows = personnelGanttHierarchy === 'installation'
+    ? buildHierarchyByInstallation(techMap, techNames)
+    : personnelGanttHierarchy === 'scope'
+    ? buildHierarchyByScope(techMap, techNames)
+    : buildHierarchyByPersonnel(techMap, techNames);
 
   let minDate = new Date(9999, 0, 1), maxDate = new Date(0);
   Object.values(techMap).forEach(tasks => tasks.forEach(t => {
@@ -2040,7 +2256,7 @@ function renderGantt(data) {
 
   const expandedTech = {};
   const expandedProj = {};
-  techNames.forEach((_, ti) => { expandedTech[ti] = true; });
+  hierarchyRows.forEach(r => { if (r.kind === 'tech') expandedTech[r.ti] = true; });
   hierarchyRows.forEach(r => { if (r.kind === 'project') expandedProj[r.projKey] = true; });
 
   const wrap = document.createElement('div');
@@ -2096,8 +2312,25 @@ function renderGantt(data) {
   scaleEl.appendChild(makeScaleBtn('week', 'Week'));
   scaleEl.appendChild(makeScaleBtn('day', 'Day'));
 
+  const hierEl = document.createElement('div');
+  hierEl.className = 'gantt-scale';
+  hierEl.setAttribute('role', 'group');
+  hierEl.setAttribute('aria-label', 'Gantt hierarchy');
+  const makeHierBtn = (key, label) => {
+    const b = document.createElement('button');
+    b.className = 'gantt-scale-btn' + (personnelGanttHierarchy === key ? ' active' : '');
+    b.textContent = label;
+    b.setAttribute('type', 'button');
+    b.addEventListener('click', () => setPersonnelGanttHierarchy(key));
+    return b;
+  };
+  hierEl.appendChild(makeHierBtn('personnel', 'By Personnel'));
+  hierEl.appendChild(makeHierBtn('installation', 'By Installation'));
+  hierEl.appendChild(makeHierBtn('scope', 'By Scope'));
+
   toolbarLeft.appendChild(rangeEl);
   toolbarLeft.appendChild(scaleEl);
+  toolbarLeft.appendChild(hierEl);
 
   const statsEl = document.createElement('div');
   statsEl.style.fontSize = '11px';
@@ -2120,7 +2353,9 @@ function renderGantt(data) {
   nh.style.color = 'var(--text-3)';
   nh.style.textTransform = 'uppercase';
   nh.style.background = 'var(--bg)';
-  nh.innerHTML = '<span class="gantt-toggle-spacer"></span><span class="gantt-name-label">Category hierarchy</span>';
+  const hierLabels = { personnel: 'Personnel / Installation / Scope', installation: 'Installation / Scope / Personnel', scope: 'Scope / Personnel' };
+  const hierLabel = hierLabels[personnelGanttHierarchy] || hierLabels.personnel;
+  nh.innerHTML = '<span class="gantt-toggle-spacer"></span><span class="gantt-name-label">' + hierLabel + '</span>';
   names.appendChild(nh);
 
   const grid = document.createElement('div');
@@ -2274,7 +2509,7 @@ function renderGantt(data) {
         toggle.className = 'gantt-toggle';
         toggle.textContent = '▼';
         toggle.setAttribute('role', 'button');
-        toggle.setAttribute('aria-label', 'Expand or collapse projects for ' + spec.techName);
+        toggle.setAttribute('aria-label', 'Expand or collapse ' + spec.techName);
         toggle.setAttribute('aria-expanded', 'true');
         toggle.dataset.ganttTechToggle = String(spec.ti);
         toggle.addEventListener('click', e => {
@@ -2295,29 +2530,34 @@ function renderGantt(data) {
         labelName: spec.techName,
         tasks: spec.tasks,
         minDate, totalDays, dayMs, dayWidth, clientColors,
-        showAvailable: true
+        showAvailable: personnelGanttHierarchy === 'personnel'
       });
     } else if (spec.kind === 'project') {
       nameRow.className = 'gantt-name-row gantt-h-project';
       nameRow.dataset.ganttT = String(spec.ti);
       gridRow.dataset.ganttT = String(spec.ti);
-      const toggle = document.createElement('span');
-      toggle.className = 'gantt-toggle';
-      toggle.textContent = '▼';
-      toggle.setAttribute('role', 'button');
-      toggle.setAttribute('aria-label', 'Expand or collapse scopes for ' + spec.client);
-      toggle.setAttribute('aria-expanded', 'true');
-      toggle.dataset.ganttProjToggle = spec.projKey;
-      toggle.addEventListener('click', e => {
-        e.stopPropagation();
-        expandedProj[spec.projKey] = !expandedProj[spec.projKey];
-        applyGanttHierarchyVisibility();
-      });
-      nameRow.appendChild(toggle);
+      const hasChildren = hierarchyRows.some(r => r.kind === 'scope' && r.projKey === spec.projKey);
+      if (hasChildren) {
+        const toggle = document.createElement('span');
+        toggle.className = 'gantt-toggle';
+        toggle.textContent = '▼';
+        toggle.setAttribute('role', 'button');
+        toggle.setAttribute('aria-label', 'Expand or collapse ' + spec.client);
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.dataset.ganttProjToggle = spec.projKey;
+        toggle.addEventListener('click', e => {
+          e.stopPropagation();
+          expandedProj[spec.projKey] = !expandedProj[spec.projKey];
+          applyGanttHierarchyVisibility();
+        });
+        nameRow.appendChild(toggle);
+      } else {
+        nameRow.appendChild(document.createElement('span')).className = 'gantt-toggle-spacer';
+      }
       const lab = document.createElement('span');
       lab.className = 'gantt-name-label';
       lab.textContent = spec.client;
-      lab.title = spec.techName + ' — ' + spec.client;
+      lab.title = spec.client;
       nameRow.appendChild(lab);
       renderPersonnelGanttRowBars(gridRow, {
         labelName: spec.techName + ' / ' + spec.client,
@@ -2325,7 +2565,7 @@ function renderGantt(data) {
         minDate, totalDays, dayMs, dayWidth, clientColors,
         showAvailable: false
       });
-    } else {
+    } else if (spec.kind === 'scope') {
       nameRow.className = 'gantt-name-row gantt-h-scope';
       nameRow.dataset.ganttT = String(spec.ti);
       nameRow.dataset.ganttProj = spec.projKey;
@@ -2335,10 +2575,10 @@ function renderGantt(data) {
       const lab = document.createElement('span');
       lab.className = 'gantt-name-label';
       lab.textContent = spec.scope;
-      lab.title = spec.techName + ' — ' + spec.client + ' — ' + spec.scope;
+      lab.title = spec.scope;
       nameRow.appendChild(lab);
       renderPersonnelGanttRowBars(gridRow, {
-        labelName: spec.techName + ' / ' + spec.client + ' / ' + spec.scope,
+        labelName: spec.techName + ' / ' + spec.scope,
         tasks: spec.tasks,
         minDate, totalDays, dayMs, dayWidth, clientColors,
         showAvailable: false
@@ -2445,6 +2685,43 @@ function setEquipmentGanttScale(scale) {
   equipmentGanttScale = scale;
   if (equipmentView === 'gantt') renderEquipment();
 }
+function setEquipmentGanttHierarchy(mode) {
+  equipmentGanttHierarchy = mode;
+  if (equipmentView === 'gantt') renderEquipment();
+}
+
+function buildEquipmentGanttHierarchy(equipMap, equipNames) {
+  const tree = {};
+  equipNames.forEach(name => {
+    equipMap[name].forEach(t => {
+      const client = (t.client || '').trim() || '(No client)';
+      const install = (t.install || '').trim() || '(No installation)';
+      if (!tree[client]) tree[client] = {};
+      if (!tree[client][install]) tree[client][install] = {};
+      if (!tree[client][install][name]) tree[client][install][name] = [];
+      tree[client][install][name].push(t);
+    });
+  });
+  const rows = [];
+  const clients = Object.keys(tree).sort();
+  clients.forEach((client, ci) => {
+    const allClientTasks = [];
+    Object.values(tree[client]).forEach(installs => Object.values(installs).forEach(tasks => allClientTasks.push(...tasks)));
+    rows.push({ kind: 'tech', ti: ci, techName: client, tasks: allClientTasks });
+    const installs = Object.keys(tree[client]).sort();
+    installs.forEach((install, ii) => {
+      const projKey = ci + '-' + ii;
+      const allInstTasks = [];
+      Object.values(tree[client][install]).forEach(tasks => allInstTasks.push(...tasks));
+      rows.push({ kind: 'project', ti: ci, projKey, techName: client, client: install, tasks: allInstTasks });
+      const equips = Object.keys(tree[client][install]).sort();
+      equips.forEach(eq => {
+        rows.push({ kind: 'scope', ti: ci, projKey, techName: eq, client: install, scope: eq, tasks: tree[client][install][eq] });
+      });
+    });
+  });
+  return rows;
+}
 
 function renderEquipmentGantt(data) {
   const container = document.getElementById('equipment-gantt-view');
@@ -2465,6 +2742,9 @@ function renderEquipmentGantt(data) {
     container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="empty-title">No Equipment Data</div><div class="empty-desc">No valid date ranges found in filtered data.</div></div>';
     return;
   }
+  const useHierarchy = equipmentGanttHierarchy === 'client';
+  const hierarchyRows = useHierarchy ? buildEquipmentGanttHierarchy(equipMap, equipNames) : null;
+
   let minDate = new Date(9999, 0, 1), maxDate = new Date(0);
   Object.values(equipMap).forEach(tasks => tasks.forEach(t => {
     if (t.start < minDate) minDate = new Date(t.start);
@@ -2478,8 +2758,34 @@ function renderEquipmentGantt(data) {
   if (ganttScale === 'week') dayWidth = 22;
   if (ganttScale === 'day') dayWidth = 26;
   const totalDays = Math.ceil((maxDate - minDate) / dayMs) + 2;
+  const dataRowCount = useHierarchy ? hierarchyRows.length : equipNames.length;
+
+  const expandedTech = {};
+  const expandedProj = {};
+  if (useHierarchy) {
+    hierarchyRows.forEach(r => { if (r.kind === 'tech') expandedTech[r.ti] = true; });
+    hierarchyRows.forEach(r => { if (r.kind === 'project') expandedProj[r.projKey] = true; });
+  }
+
   const wrap = document.createElement('div');
   wrap.className = 'gantt-wrap';
+
+  function applyEqHierarchyVisibility() {
+    wrap.querySelectorAll('[data-gantt-t]').forEach(el => {
+      const ti = el.dataset.ganttT;
+      const pk = el.dataset.ganttProj;
+      let hide = expandedTech[ti] === false;
+      if (!hide && pk !== undefined && pk !== '') hide = expandedProj[pk] === false;
+      el.classList.toggle('gantt-collapsed-row', hide);
+    });
+    wrap.querySelectorAll('.gantt-toggle[data-gantt-tech-toggle]').forEach(btn => {
+      btn.textContent = expandedTech[btn.dataset.ganttTechToggle] ? '▼' : '▶';
+    });
+    wrap.querySelectorAll('.gantt-toggle[data-gantt-proj-toggle]').forEach(btn => {
+      btn.textContent = expandedProj[btn.dataset.ganttProjToggle] ? '▼' : '▶';
+    });
+  }
+
   const toolbar = document.createElement('div');
   toolbar.className = 'gantt-toolbar';
   const expCount = data.filter(r => { const s = getCalibStatus(r['Calibration End Date']); return s === 'critical' || s === 'expired'; }).length;
@@ -2508,8 +2814,24 @@ function renderEquipmentGantt(data) {
   scaleEl.appendChild(makeScaleBtn('week', 'Week'));
   scaleEl.appendChild(makeScaleBtn('day', 'Day'));
 
+  const hierEl = document.createElement('div');
+  hierEl.className = 'gantt-scale';
+  hierEl.setAttribute('role', 'group');
+  hierEl.setAttribute('aria-label', 'Gantt hierarchy');
+  const makeHierBtn = (key, label) => {
+    const b = document.createElement('button');
+    b.className = 'gantt-scale-btn' + (equipmentGanttHierarchy === key ? ' active' : '');
+    b.textContent = label;
+    b.setAttribute('type', 'button');
+    b.addEventListener('click', () => setEquipmentGanttHierarchy(key));
+    return b;
+  };
+  hierEl.appendChild(makeHierBtn('flat', 'By Equipment'));
+  hierEl.appendChild(makeHierBtn('client', 'By Client'));
+
   toolbarLeft.appendChild(rangeEl);
   toolbarLeft.appendChild(scaleEl);
+  toolbarLeft.appendChild(hierEl);
 
   const statsEl = document.createElement('div');
   statsEl.style.display = 'flex';
@@ -2534,24 +2856,13 @@ function renderEquipmentGantt(data) {
   gc.className = 'gantt-container';
   const names = document.createElement('div');
   names.className = 'gantt-names';
-  names.style.width = '220px';
+  names.style.width = useHierarchy ? '280px' : '220px';
   const nh = document.createElement('div');
   nh.className = 'gantt-name-row';
   nh.style.fontWeight = '700'; nh.style.fontSize = '10px'; nh.style.color = 'var(--text-3)'; nh.style.textTransform = 'uppercase';
-  nh.textContent = 'Equipment';
+  nh.textContent = useHierarchy ? 'Client / Installation / Equipment' : 'Equipment';
   names.appendChild(nh);
-  equipNames.forEach(name => {
-    const row = document.createElement('div');
-    row.className = 'gantt-name-row';
-    const tasks = equipMap[name];
-    const worstCalib = tasks.reduce((worst, t) => { const order = { expired: 0, critical: 1, warning: 2, ok: 3, unknown: 4 }; return order[t.calibStatus] < order[worst] ? t.calibStatus : worst; }, 'unknown');
-    row.style.fontSize = '10.5px';
-    if (worstCalib === 'expired' || worstCalib === 'critical') row.style.color = 'var(--danger)';
-    row.textContent = name.length > 30 ? name.substring(0, 28) + '…' : name;
-    row.title = name;
-    names.appendChild(row);
-  });
-  gc.appendChild(names);
+
   const grid = document.createElement('div');
   grid.className = 'gantt-grid';
   const inner = document.createElement('div');
@@ -2572,109 +2883,44 @@ function renderEquipmentGantt(data) {
   if (ganttScale === 'day') {
     headerWrap = document.createElement('div');
     headerWrap.className = 'gantt-header-wrap';
-
     const monthRow = document.createElement('div');
     monthRow.className = 'gantt-header-row';
-    let curMonth = '';
-    let monthStart = 0;
+    let curMonth = '', monthStart = 0;
     for (let i = 0; i <= totalDays; i++) {
       const dt = new Date(minDate.getTime() + i * dayMs);
       const mo = i < totalDays ? dt.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : curMonth;
       if (mo !== curMonth) {
-        if (curMonth && i > monthStart) {
-          const cell = document.createElement('div');
-          cell.className = 'gantt-header-cell';
-          cell.style.width = ((i - monthStart) * dayWidth) + 'px';
-          cell.textContent = curMonth;
-          monthRow.appendChild(cell);
-        }
-        curMonth = mo;
-        monthStart = i;
+        if (curMonth && i > monthStart) { const cell = document.createElement('div'); cell.className = 'gantt-header-cell'; cell.style.width = ((i - monthStart) * dayWidth) + 'px'; cell.textContent = curMonth; monthRow.appendChild(cell); }
+        curMonth = mo; monthStart = i;
       }
     }
-
-    if (curMonth && totalDays > monthStart) {
-      const cell = document.createElement('div');
-      cell.className = 'gantt-header-cell';
-      cell.style.width = ((totalDays - monthStart) * dayWidth) + 'px';
-      cell.textContent = curMonth;
-      monthRow.appendChild(cell);
-    }
-
+    if (curMonth && totalDays > monthStart) { const cell = document.createElement('div'); cell.className = 'gantt-header-cell'; cell.style.width = ((totalDays - monthStart) * dayWidth) + 'px'; cell.textContent = curMonth; monthRow.appendChild(cell); }
     const dayRow = document.createElement('div');
     dayRow.className = 'gantt-header-row';
-    for (let i = 0; i < totalDays; i++) {
-      const dt = new Date(minDate.getTime() + i * dayMs);
-      const cell = document.createElement('div');
-      cell.className = 'gantt-header-cell';
-      cell.style.width = dayWidth + 'px';
-      cell.textContent = String(dt.getDate());
-      dayRow.appendChild(cell);
-    }
+    for (let i = 0; i < totalDays; i++) { const dt = new Date(minDate.getTime() + i * dayMs); const cell = document.createElement('div'); cell.className = 'gantt-header-cell'; cell.style.width = dayWidth + 'px'; cell.textContent = String(dt.getDate()); dayRow.appendChild(cell); }
     headerWrap.appendChild(monthRow);
     headerWrap.appendChild(dayRow);
   } else if (ganttScale === 'week') {
-    let curKey = '';
-    let curLabel = '';
-    let cellStart = 0;
+    let curKey = '', curLabel = '', cellStart = 0;
     for (let i = 0; i <= totalDays; i++) {
-      const dt = new Date(minDate.getTime() + i * dayMs);
-      const w = isoWeekInfo(dt);
-      const key = w.year + '-' + w.week;
-      const label = 'W' + w.week;
-      if (key !== curKey) {
-        if (curKey && i > cellStart) {
-          const cell = document.createElement('div');
-          cell.className = 'gantt-header-cell';
-          cell.style.width = ((i - cellStart) * dayWidth) + 'px';
-          cell.textContent = curLabel;
-          header.appendChild(cell);
-        }
-        curKey = key;
-        curLabel = label;
-        cellStart = i;
-      }
+      const dt = new Date(minDate.getTime() + i * dayMs); const w = isoWeekInfo(dt); const key = w.year + '-' + w.week; const label = 'W' + w.week;
+      if (key !== curKey) { if (curKey && i > cellStart) { const cell = document.createElement('div'); cell.className = 'gantt-header-cell'; cell.style.width = ((i - cellStart) * dayWidth) + 'px'; cell.textContent = curLabel; header.appendChild(cell); } curKey = key; curLabel = label; cellStart = i; }
     }
-    if (totalDays > cellStart) {
-      const cell = document.createElement('div');
-      cell.className = 'gantt-header-cell';
-      cell.style.width = ((totalDays - cellStart) * dayWidth) + 'px';
-      cell.textContent = curLabel;
-      header.appendChild(cell);
-    }
+    if (totalDays > cellStart) { const cell = document.createElement('div'); cell.className = 'gantt-header-cell'; cell.style.width = ((totalDays - cellStart) * dayWidth) + 'px'; cell.textContent = curLabel; header.appendChild(cell); }
   } else {
-    let curMonth = '';
-    let monthStart = 0;
+    let curMonth = '', monthStart = 0;
     for (let i = 0; i <= totalDays; i++) {
-      const dt = new Date(minDate.getTime() + i * dayMs);
-      const mo = dt.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-      if (mo !== curMonth) {
-        if (curMonth && i > monthStart) {
-          const cell = document.createElement('div');
-          cell.className = 'gantt-header-cell';
-          cell.style.width = ((i - monthStart) * dayWidth) + 'px';
-          cell.textContent = curMonth;
-          header.appendChild(cell);
-        }
-        curMonth = mo;
-        monthStart = i;
-      }
+      const dt = new Date(minDate.getTime() + i * dayMs); const mo = dt.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+      if (mo !== curMonth) { if (curMonth && i > monthStart) { const cell = document.createElement('div'); cell.className = 'gantt-header-cell'; cell.style.width = ((i - monthStart) * dayWidth) + 'px'; cell.textContent = curMonth; header.appendChild(cell); } curMonth = mo; monthStart = i; }
     }
-    if (totalDays > monthStart) {
-      const cell = document.createElement('div');
-      cell.className = 'gantt-header-cell';
-      cell.style.width = ((totalDays - monthStart) * dayWidth) + 'px';
-      cell.textContent = curMonth;
-      header.appendChild(cell);
-    }
+    if (totalDays > monthStart) { const cell = document.createElement('div'); cell.className = 'gantt-header-cell'; cell.style.width = ((totalDays - monthStart) * dayWidth) + 'px'; cell.textContent = curMonth; header.appendChild(cell); }
   }
 
   if (headerWrap) inner.appendChild(headerWrap);
   else inner.appendChild(header);
-  equipNames.forEach(name => {
-    const row = document.createElement('div');
-    row.className = 'gantt-row';
-    equipMap[name].forEach(t => {
+
+  function renderEquipBars(gridRow, tasks) {
+    tasks.forEach(t => {
       const startOff = Math.max(0, (t.start - minDate) / dayMs);
       const dur = Math.max(1, (t.end - t.start) / dayMs);
       const bar = document.createElement('div');
@@ -2685,33 +2931,124 @@ function renderEquipmentGantt(data) {
       if (t.calibStatus === 'critical' || t.calibStatus === 'expired') bar.style.animation = 'calibFlash 2s infinite';
       bar.textContent = t.install || t.client;
       const calibEndStr = t.calibEnd ? t.calibEnd.toLocaleDateString('en-GB') : 'N/A';
-      bar.title = name + '\nCalib expires: ' + calibEndStr + ' (' + calibLabel(t.calibStatus) + ')\n' + t.client + ' — ' + t.install + '\n' + t.start.toLocaleDateString('en-GB') + ' → ' + t.end.toLocaleDateString('en-GB');
+      bar.title = 'Calib expires: ' + calibEndStr + ' (' + calibLabel(t.calibStatus) + ')\n' + t.client + ' — ' + t.install + '\n' + t.start.toLocaleDateString('en-GB') + ' → ' + t.end.toLocaleDateString('en-GB');
       bar.setAttribute('role', 'img');
-      bar.setAttribute('aria-label', name + ' calibration ' + calibLabel(t.calibStatus) + ', expires ' + calibEndStr);
-      row.appendChild(bar);
+      gridRow.appendChild(bar);
     });
-    inner.appendChild(row);
-  });
+  }
+
+  if (useHierarchy) {
+    // Hierarchy mode: Client → Installation → Equipment
+    hierarchyRows.forEach(spec => {
+      const nameRow = document.createElement('div');
+      const gridRow = document.createElement('div');
+      gridRow.className = 'gantt-row';
+
+      if (spec.kind === 'tech') {
+        nameRow.className = 'gantt-name-row gantt-h-tech';
+        const hasChildren = hierarchyRows.some(r => r.kind !== 'tech' && r.ti === spec.ti);
+        if (hasChildren) {
+          const toggle = document.createElement('span');
+          toggle.className = 'gantt-toggle';
+          toggle.textContent = '▼';
+          toggle.setAttribute('role', 'button');
+          toggle.dataset.ganttTechToggle = String(spec.ti);
+          toggle.addEventListener('click', e => { e.stopPropagation(); expandedTech[spec.ti] = !expandedTech[spec.ti]; applyEqHierarchyVisibility(); });
+          nameRow.appendChild(toggle);
+        } else {
+          nameRow.appendChild(document.createElement('span')).className = 'gantt-toggle-spacer';
+        }
+        const lab = document.createElement('span');
+        lab.className = 'gantt-name-label';
+        lab.textContent = spec.techName;
+        lab.title = spec.techName;
+        nameRow.appendChild(lab);
+        renderEquipBars(gridRow, spec.tasks);
+      } else if (spec.kind === 'project') {
+        nameRow.className = 'gantt-name-row gantt-h-project';
+        nameRow.dataset.ganttT = String(spec.ti);
+        gridRow.dataset.ganttT = String(spec.ti);
+        const toggle = document.createElement('span');
+        toggle.className = 'gantt-toggle';
+        toggle.textContent = '▼';
+        toggle.setAttribute('role', 'button');
+        toggle.dataset.ganttProjToggle = spec.projKey;
+        toggle.addEventListener('click', e => { e.stopPropagation(); expandedProj[spec.projKey] = !expandedProj[spec.projKey]; applyEqHierarchyVisibility(); });
+        nameRow.appendChild(toggle);
+        const lab = document.createElement('span');
+        lab.className = 'gantt-name-label';
+        lab.textContent = spec.client;
+        lab.title = spec.techName + ' — ' + spec.client;
+        nameRow.appendChild(lab);
+        renderEquipBars(gridRow, spec.tasks);
+      } else {
+        nameRow.className = 'gantt-name-row gantt-h-scope';
+        nameRow.dataset.ganttT = String(spec.ti);
+        nameRow.dataset.ganttProj = spec.projKey;
+        gridRow.dataset.ganttT = String(spec.ti);
+        gridRow.dataset.ganttProj = spec.projKey;
+        nameRow.appendChild(document.createElement('span')).className = 'gantt-toggle-spacer';
+        const lab = document.createElement('span');
+        lab.className = 'gantt-name-label';
+        lab.textContent = spec.scope;
+        lab.title = spec.scope;
+        const worstCalib = spec.tasks.reduce((worst, t) => { const order = { expired: 0, critical: 1, warning: 2, ok: 3, unknown: 4 }; return order[t.calibStatus] < order[worst] ? t.calibStatus : worst; }, 'unknown');
+        if (worstCalib === 'expired' || worstCalib === 'critical') nameRow.style.color = 'var(--danger)';
+        nameRow.appendChild(lab);
+        renderEquipBars(gridRow, spec.tasks);
+      }
+
+      names.appendChild(nameRow);
+      inner.appendChild(gridRow);
+    });
+    applyEqHierarchyVisibility();
+  } else {
+    // Flat mode: simple equipment list
+    equipNames.forEach(name => {
+      const row = document.createElement('div');
+      row.className = 'gantt-name-row';
+      const tasks = equipMap[name];
+      const worstCalib = tasks.reduce((worst, t) => { const order = { expired: 0, critical: 1, warning: 2, ok: 3, unknown: 4 }; return order[t.calibStatus] < order[worst] ? t.calibStatus : worst; }, 'unknown');
+      row.style.fontSize = '10.5px';
+      if (worstCalib === 'expired' || worstCalib === 'critical') row.style.color = 'var(--danger)';
+      row.textContent = name.length > 30 ? name.substring(0, 28) + '…' : name;
+      row.title = name;
+      names.appendChild(row);
+
+      const gridRow = document.createElement('div');
+      gridRow.className = 'gantt-row';
+      renderEquipBars(gridRow, tasks);
+      inner.appendChild(gridRow);
+    });
+  }
+
   const today = new Date();
   if (today >= minDate && today <= maxDate) {
     const todayOff = (today - minDate) / dayMs;
     const todayLine = document.createElement('div');
     todayLine.className = 'gantt-today';
     todayLine.style.left = (todayOff * dayWidth) + 'px';
-    // Align with the top of the bars (timeline header height).
     inner.appendChild(todayLine);
     requestAnimationFrame(() => {
       const hh = headerWrap ? headerWrap.offsetHeight : header.offsetHeight;
       todayLine.style.top = hh + 'px';
-      // For safety: keep a reasonable height when scrolling/resize.
-      todayLine.style.height = (equipNames.length * rowH) + 'px';
+      todayLine.style.height = (dataRowCount * rowH) + 'px';
     });
   }
+  gc.appendChild(names);
   grid.appendChild(inner);
   gc.appendChild(grid);
   wrap.appendChild(gc);
   names.addEventListener('scroll', () => { grid.scrollTop = names.scrollTop; });
   grid.addEventListener('scroll', () => { names.scrollTop = grid.scrollTop; });
+
+  // Align name header height with grid header
+  requestAnimationFrame(() => {
+    const hh = (headerWrap ? headerWrap.offsetHeight : header.offsetHeight) || rowH;
+    nh.style.height = hh + 'px';
+    nh.style.minHeight = hh + 'px';
+  });
+
   const legend = document.createElement('div');
   legend.className = 'gantt-legend';
   [['Calibrated (>3mo)', '#7AB800'], ['Next to calibrate (1-3mo)', '#eab308'], ['Next to calibrate (this month)', '#E98300'], ['Calibration expired', '#C82882']].forEach(([label, color]) => {
@@ -3084,6 +3421,217 @@ function renderMaster() {
   ]);
 }
 
+// ─── LEADS TAB ───
+let leadsPage = 1;
+let leadsSortCol = 'Created';
+let leadsSortAsc = false;
+let leadsLastPageAction = '';
+const LEADS_PER_PAGE = 50;
+const LEADS_COLUMNS = [
+  { key: 'Created', label: 'Created', sortable: true, isDate: true },
+  { key: 'Title', label: 'Title', sortable: true },
+  { key: 'Responsible', label: 'Responsible', sortable: true },
+  { key: 'Entity', label: 'Entity', sortable: true },
+  { key: 'Status', label: 'Status', sortable: true },
+  { key: 'DueDate', label: 'Due Date', sortable: true, isDate: true },
+  { key: 'Installation', label: 'Installation', sortable: true },
+  { key: 'Customer', label: 'Customer', sortable: true },
+  { key: 'Head Customer', label: 'Head Customer', sortable: true },
+  { key: 'Segment', label: 'Segment', sortable: true },
+  { key: 'Service', label: 'Service', sortable: true }
+];
+
+function leadsSort(col) {
+  if (leadsSortCol === col) leadsSortAsc = !leadsSortAsc;
+  else { leadsSortCol = col; leadsSortAsc = true; }
+  leadsPage = 1;
+  renderLeadsTable(state.leads.filtered);
+}
+function leadsPageNav(action, totalPages) {
+  leadsLastPageAction = action;
+  if (action === 'first') leadsPage = 1;
+  else if (action === 'prev') leadsPage = Math.max(1, leadsPage - 1);
+  else if (action === 'next') leadsPage = Math.min(totalPages, leadsPage + 1);
+  else if (action === 'last') leadsPage = totalPages;
+  renderLeadsTable(state.leads.filtered);
+}
+
+function renderLeads() {
+  const d = state.leads.filtered;
+  const total = d.length;
+  const withStatus = d.filter(r => (r['Status'] || '').toString().trim() !== '').length;
+  const inProgress = d.filter(r => (r['Status'] || '').toString().trim().toLowerCase() === 'in progress').length;
+  const services = [...new Set(d.map(r => (r['Service'] || '').toString().trim()).filter(Boolean))].length;
+  const entities = [...new Set(d.map(r => (r['Entity'] || '').toString().trim()).filter(Boolean))].length;
+  const hasDue = d.filter(r => excelDate(r['DueDate']) || parseDate(r['DueDate'])).length;
+
+  renderKPIs('kpi-leads', [
+    { label: 'Total Leads', value: total, format: 'int', accent: 'var(--brand)' },
+    { label: 'In Progress', value: inProgress, format: 'int', sub: withStatus + ' with status', accent: 'var(--warm)' },
+    { label: 'Services', value: services, format: 'int', sub: 'Distinct service types', accent: 'var(--info)' },
+    { label: 'Entities', value: entities, format: 'int', sub: 'Axess entities involved', accent: 'var(--success)' },
+    { label: 'With Due Date', value: hasDue, format: 'int', sub: (total > 0 ? Math.round(hasDue / total * 100) : 0) + '% of leads', accent: 'var(--warning)' }
+  ]);
+
+  // Chart 1: Leads by Status (horizontal bar)
+  const statusGroup = {};
+  d.forEach(r => { const s = (r['Status'] || '').toString().trim() || '(No status)'; statusGroup[s] = (statusGroup[s] || 0) + 1; });
+  const statusEntries = Object.entries(statusGroup).sort((a, b) => b[1] - a[1]);
+  const statusColors = statusEntries.map(([k]) => {
+    const lower = k.toLowerCase();
+    if (lower === 'in progress') return '#e98300';
+    if (lower.includes('complet') || lower.includes('won')) return '#7ab800';
+    if (lower.includes('lost') || lower.includes('reject')) return '#ef4444';
+    return '#589199';
+  });
+  const statusOpts = {
+    chart: { type: 'bar', height: 280 },
+    series: [{ data: statusEntries.map(e => e[1]) }],
+    plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: true } },
+    colors: statusColors,
+    xaxis: { categories: statusEntries.map(e => e[0]) },
+    yaxis: { labels: { style: { fontSize: '12px', fontWeight: 600 } } },
+    dataLabels: { enabled: true, formatter: v => v + ' leads', style: { fontSize: '12px', fontWeight: '600' } },
+    legend: { show: false },
+    grid: { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
+    tooltip: { y: { formatter: v => v + ' leads (' + (total > 0 ? (v / total * 100).toFixed(1) : 0) + '%)' } }
+  };
+
+  // Chart 2: Leads by Service (donut %)
+  const svcGroup = {};
+  d.forEach(r => { const s = (r['Service'] || '').toString().trim() || '(No service)'; svcGroup[s] = (svcGroup[s] || 0) + 1; });
+  const svcEntries = Object.entries(svcGroup).sort((a, b) => b[1] - a[1]);
+  const svcOpts = {
+    chart: { type: 'donut', height: 300 },
+    series: svcEntries.map(e => e[1]),
+    labels: svcEntries.map(e => e[0]),
+    colors: COLORS.slice(0, svcEntries.length),
+    plotOptions: { pie: { donut: { size: '72%', labels: { show: true, name: { fontSize: '13px', fontWeight: 600 }, value: { fontSize: '22px', fontWeight: 700, formatter: v => fmt(+v) }, total: { show: true, label: 'Total', formatter: w => fmt(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) } } } } },
+    dataLabels: { enabled: false },
+    legend: { position: 'bottom', fontSize: '12px' },
+    stroke: { width: 2 },
+    tooltip: { y: { formatter: (v, { seriesIndex }) => v + ' leads (' + (total > 0 ? (v / total * 100).toFixed(1) : 0) + '%)' } }
+  };
+
+  // Chart 3: Leads by Segment (donut %)
+  const segGroup = {};
+  d.forEach(r => { const s = (r['Segment'] || '').toString().trim() || '(No segment)'; segGroup[s] = (segGroup[s] || 0) + 1; });
+  const segEntries = Object.entries(segGroup).sort((a, b) => b[1] - a[1]);
+  const segOpts = {
+    chart: { type: 'donut', height: 300 },
+    series: segEntries.map(e => e[1]),
+    labels: segEntries.map(e => e[0]),
+    colors: COLORS.slice(5, 5 + segEntries.length),
+    plotOptions: { pie: { donut: { size: '72%', labels: { show: true, name: { fontSize: '13px', fontWeight: 600 }, value: { fontSize: '22px', fontWeight: 700, formatter: v => fmt(+v) }, total: { show: true, label: 'Total', formatter: w => fmt(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) } } } } },
+    dataLabels: { enabled: false },
+    legend: { position: 'bottom', fontSize: '12px' },
+    stroke: { width: 2 },
+    tooltip: { y: { formatter: (v, { seriesIndex }) => v + ' leads (' + (total > 0 ? (v / total * 100).toFixed(1) : 0) + '%)' } }
+  };
+
+  buildChartGrid('charts-leads', [
+    { id: 'c-l-status', title: 'Leads by Status', tag: 'count', options: statusOpts },
+    { id: 'c-l-service', title: 'Leads by Service', tag: '% share', options: svcOpts },
+    { id: 'c-l-segment', title: 'Leads by Segment', tag: '% share', options: segOpts }
+  ]);
+
+  leadsPage = 1;
+  renderLeadsTable(d);
+}
+
+function renderLeadsTable(data) {
+  const container = document.getElementById('leads-table-view');
+  const totalPages = Math.max(1, Math.ceil(data.length / LEADS_PER_PAGE));
+  if (leadsPage > totalPages) leadsPage = totalPages;
+
+  // Sort data
+  const sorted = [...data].sort((a, b) => {
+    const col = LEADS_COLUMNS.find(c => c.key === leadsSortCol);
+    let va, vb;
+    if (col && col.isDate) {
+      va = excelDate(a[leadsSortCol]) || parseDate(a[leadsSortCol]) || new Date(0);
+      vb = excelDate(b[leadsSortCol]) || parseDate(b[leadsSortCol]) || new Date(0);
+      return leadsSortAsc ? va - vb : vb - va;
+    }
+    va = (a[leadsSortCol] || '').toString().toLowerCase();
+    vb = (b[leadsSortCol] || '').toString().toLowerCase();
+    if (va < vb) return leadsSortAsc ? -1 : 1;
+    if (va > vb) return leadsSortAsc ? 1 : -1;
+    return 0;
+  });
+
+  const start = (leadsPage - 1) * LEADS_PER_PAGE;
+  const pageData = sorted.slice(start, start + LEADS_PER_PAGE);
+
+  const fmtDate = v => { const d = excelDate(v) || parseDate(v); return d ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''; };
+  const esc = v => (v || '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const statusBadge = s => {
+    const st = (s || '').toString().trim();
+    if (!st) return '<span style="color:var(--text-3);font-style:italic" aria-label="No status">&#8212; No status</span>';
+    const lower = st.toLowerCase();
+    let bg = 'var(--bg-2)', col = 'var(--text)', icon = '';
+    if (lower === 'in progress') { bg = 'rgba(233,131,0,0.12)'; col = 'var(--warm)'; icon = '&#9679; '; }
+    else if (lower.includes('complet') || lower.includes('won')) { bg = 'rgba(122,184,0,0.12)'; col = 'var(--success)'; icon = '&#10003; '; }
+    else if (lower.includes('lost') || lower.includes('reject')) { bg = 'rgba(239,68,68,0.12)'; col = 'var(--danger)'; icon = '&#10007; '; }
+    return '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:' + bg + ';color:' + col + '">' + icon + esc(st) + '</span>';
+  };
+
+  // Pagination bar
+  const showing = data.length > 0 ? 'Showing ' + (start + 1) + '&#8211;' + Math.min(start + LEADS_PER_PAGE, data.length) + ' of ' + data.length + ' leads' : 'No leads';
+  let html = '<nav aria-label="Leads table pagination" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">' +
+    '<span style="font-size:12px;color:var(--text-3)">' + showing + '</span>' +
+    '<div style="display:flex;gap:4px;align-items:center">' +
+    '<button class="page-btn" data-page-action="first" aria-label="First page" onclick="leadsPageNav(\'first\',' + totalPages + ')" ' + (leadsPage <= 1 ? 'disabled' : '') + '>&laquo;</button>' +
+    '<button class="page-btn" data-page-action="prev" aria-label="Previous page" onclick="leadsPageNav(\'prev\',' + totalPages + ')" ' + (leadsPage <= 1 ? 'disabled' : '') + '>&lsaquo;</button>' +
+    '<span style="font-size:12px;font-weight:600;padding:0 8px;color:var(--text-2)" aria-live="polite">Page ' + leadsPage + ' / ' + totalPages + '</span>' +
+    '<button class="page-btn" data-page-action="next" aria-label="Next page" onclick="leadsPageNav(\'next\',' + totalPages + ')" ' + (leadsPage >= totalPages ? 'disabled' : '') + '>&rsaquo;</button>' +
+    '<button class="page-btn" data-page-action="last" aria-label="Last page" onclick="leadsPageNav(\'last\',' + totalPages + ')" ' + (leadsPage >= totalPages ? 'disabled' : '') + '>&raquo;</button>' +
+    '</div></nav>';
+
+  // Table
+  html += '<div style="overflow-x:auto;border-radius:var(--r);border:1px solid var(--glass-border);box-shadow:var(--sh)">';
+  html += '<table class="equip-table" style="min-width:900px"><thead><tr>';
+  LEADS_COLUMNS.forEach(col => {
+    const isActive = leadsSortCol === col.key;
+    const arrow = isActive ? (leadsSortAsc ? '&#9650;' : '&#9660;') : '&#9650;';
+    html += '<th class="sortable' + (isActive ? ' sort-active' : '') + '" onclick="leadsSort(\'' + col.key + '\')" aria-sort="' + (isActive ? (leadsSortAsc ? 'ascending' : 'descending') : 'none') + '" role="columnheader" tabindex="0" onkeydown="if(event.key===\'Enter\')leadsSort(\'' + col.key + '\')">' + col.label + '<span class="sort-arrow">' + arrow + '</span></th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  if (pageData.length === 0) {
+    html += '<tr><td colspan="11"><div class="empty-state" style="padding:40px 20px">' +
+      '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>' +
+      '<div class="empty-title">No leads match current filters</div>' +
+      '<div class="empty-desc">Try adjusting or clearing your filter criteria to see results.</div>' +
+      '</div></td></tr>';
+  } else {
+    pageData.forEach(r => {
+      html += '<tr>';
+      html += '<td style="white-space:nowrap;font-family:var(--font-mono);font-size:11px">' + fmtDate(r['Created']) + '</td>';
+      html += '<td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(r['Title']) + '">' + esc(r['Title']) + '</td>';
+      html += '<td>' + esc(r['Responsible']) + '</td>';
+      html += '<td style="font-size:11px">' + esc(r['Entity']) + '</td>';
+      html += '<td>' + statusBadge(r['Status']) + '</td>';
+      html += '<td style="white-space:nowrap;font-family:var(--font-mono);font-size:11px">' + fmtDate(r['DueDate']) + '</td>';
+      html += '<td>' + esc(r['Installation']) + '</td>';
+      html += '<td>' + esc(r['Customer']) + '</td>';
+      html += '<td>' + esc(r['Head Customer']) + '</td>';
+      html += '<td>' + esc(r['Segment']) + '</td>';
+      html += '<td>' + esc(r['Service']) + '</td>';
+      html += '</tr>';
+    });
+  }
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+
+  // Restore focus after pagination re-render
+  if (leadsLastPageAction) {
+    const target = container.querySelector('[data-page-action="' + leadsLastPageAction + '"]');
+    if (target && !target.disabled) target.focus();
+    leadsLastPageAction = '';
+  }
+}
+
 // ─── Export charts as PNG ───
 function exportCharts() {
   // Equipment tab: if in gantt/table view, temporarily render charts to export
@@ -3138,6 +3686,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderTab('personnel');
   renderTab('equipment');
   renderTab('master');
+  renderTab('leads');
   toast('Dashboard loaded with demo data. Upload your Excel files to see real data.', 'info');
 });
 </script>
