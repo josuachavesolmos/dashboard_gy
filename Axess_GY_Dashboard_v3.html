@@ -479,6 +479,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
       </div>
       <div class="kpi-row" id="kpi-quote"></div>
       <div class="chart-grid" id="charts-quote"></div>
+      <div id="quote-drilldown" style="display:none"></div>
     </div>
 
     <!-- ═══════ TAB 2: PERSONNEL ═══════ -->
@@ -1358,6 +1359,12 @@ function getDateFilteredQuotes() {
 
 // ─── QUOTE TAB ───
 function renderQuote() {
+  // Close drill-down if open
+  const ddEl = document.getElementById('quote-drilldown');
+  if (ddEl) { ddEl.style.display = 'none'; ddEl.innerHTML = ''; }
+  const cqEl = document.getElementById('charts-quote');
+  if (cqEl) cqEl.style.display = '';
+
   const d = state.quote.filtered;
   const dDateOnly = getDateFilteredQuotes();
   const total = d.length;
@@ -1694,11 +1701,14 @@ const VARIANCE_PCT = [175,104,34,17,30,98,69,39,49,42,22,87];
 const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 let showForecast = false;
 let showVariance = false;
+let revCostChartData = []; // stores filtered quote data used by the chart
+let revCostBucketKeys = []; // stores sorted bucket keys for drill-down index lookup
 let timelineYearFilter = '';
 let revCostYMax = 100; // percentage of auto max (10-100)
 
 function buildRevCostChart(d) {
   const buckets = {};
+  const bucketRows = {}; // store rows per bucket for drill-down
   d.forEach(r => {
     const dt = excelDate(r['Estimated Start Date']) || excelDate(r['Estimated start date']) || excelDate(r['Quote Date']);
     if (!dt) return;
@@ -1713,11 +1723,15 @@ function buildRevCostChart(d) {
     } else {
       key = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
     }
-    if (!buckets[key]) buckets[key] = { rev: 0, cost: 0, month: dt.getMonth(), year: dt.getFullYear() };
+    if (!buckets[key]) { buckets[key] = { rev: 0, cost: 0, month: dt.getMonth(), year: dt.getFullYear() }; bucketRows[key] = []; }
     buckets[key].rev += (parseFloat(r['Sum Total']) || 0);
     buckets[key].cost += (parseFloat(r['Cost Sum Total']) || parseFloat(r['cost sum total']) || parseFloat(r['Cost Total']) || 0);
+    bucketRows[key].push({ ...r, _date: dt });
   });
   const keys = Object.keys(buckets).sort();
+  // Store for drill-down access
+  revCostBucketKeys = keys;
+  revCostChartData = bucketRows;
 
   // Helper: get monthly value from array, adapted to period
   function getMonthlyVal(arr, k, sumForYear) {
@@ -1795,7 +1809,19 @@ function buildRevCostChart(d) {
   }
 
   return {
-    chart: { type: 'line', height: 310, zoom: { enabled: true, type: 'x' }, stacked: false },
+    chart: {
+      type: 'line', height: 310, zoom: { enabled: true, type: 'x' }, stacked: false,
+      events: {
+        dataPointSelection: function(event, chartContext, config) {
+          // Only trigger for bar series (Revenue or Cost), not lines
+          if (config.seriesIndex > 1) return;
+          const dataPointIndex = config.dataPointIndex;
+          if (dataPointIndex >= 0 && dataPointIndex < keys.length) {
+            showQuoteDrilldown(keys[dataPointIndex]);
+          }
+        }
+      }
+    },
     series: series,
     colors: colors,
     stroke: { width: strokeW, curve: 'smooth', dashArray: dashArr },
@@ -1815,6 +1841,90 @@ function buildRevCostChart(d) {
       }}
     }
   };
+}
+
+// ─── QUOTE DRILL-DOWN ───
+function showQuoteDrilldown(bucketKey) {
+  const rows = revCostChartData[bucketKey];
+  if (!rows || rows.length === 0) { toast('No data for this period', 'info'); return; }
+
+  // Hide charts, show drilldown
+  document.getElementById('charts-quote').style.display = 'none';
+  const container = document.getElementById('quote-drilldown');
+  container.style.display = '';
+
+  const e = v => (v || '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const fmtD = v => { const d = excelDate(v) || parseDate(v); return d ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''; };
+  const fmtN = v => { const n = parseFloat(v); return isNaN(n) ? '' : n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+
+  // Period label
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let periodLabel = bucketKey;
+  if (quoteTimePeriod === 'month' && bucketKey.includes('-')) {
+    const [y, m] = bucketKey.split('-');
+    periodLabel = MONTHS[parseInt(m, 10) - 1] + ' ' + y;
+  }
+
+  // Sort by Sum Total descending
+  const sorted = [...rows].sort((a, b) => (parseFloat(b['Sum Total']) || 0) - (parseFloat(a['Sum Total']) || 0));
+
+  // Totals
+  const totalRev = sorted.reduce((s, r) => s + (parseFloat(r['Sum Total']) || 0), 0);
+  const totalCost = sorted.reduce((s, r) => s + (parseFloat(r['Cost Sum Total']) || parseFloat(r['cost sum total']) || parseFloat(r['Cost Total']) || 0), 0);
+
+  let html = '<div style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+    '<button class="page-btn" onclick="closeQuoteDrilldown()" style="padding:6px 14px;font-size:12px;gap:6px;display:inline-flex;align-items:center" aria-label="Back to charts">' +
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+    ' Back to charts</button>' +
+    '<span style="font-size:15px;font-weight:700;color:var(--text)">Revenue vs Cost — ' + e(periodLabel) + '</span>' +
+    '<span style="font-size:12px;color:var(--text-3);margin-left:auto">' + sorted.length + ' quotes &middot; Rev: ' + fmtCur(totalRev) + ' &middot; Cost: ' + fmtCur(totalCost) + '</span>' +
+    '</div>';
+
+  html += '<div style="overflow-x:auto;border-radius:var(--r);border:1px solid var(--glass-border);box-shadow:var(--sh)">';
+  html += '<table class="equip-table" style="min-width:1000px"><thead><tr>';
+  html += '<th>Year</th><th>Month</th><th>Sum Total</th><th>Cost Sum Total</th><th>Title</th><th>Entity</th><th>Axess Product</th><th>Installation</th><th>Customer</th><th>Status</th><th>Responsible</th>';
+  html += '</tr></thead><tbody>';
+
+  sorted.forEach(r => {
+    const dt = r._date;
+    const year = dt ? dt.getFullYear() : '';
+    const month = dt ? MONTHS[dt.getMonth()] : '';
+    const sumTotal = parseFloat(r['Sum Total']) || 0;
+    const costTotal = parseFloat(r['Cost Sum Total']) || parseFloat(r['cost sum total']) || parseFloat(r['Cost Total']) || 0;
+    const resp = (r['Responsible'] || '').split('@')[0].replace(/\./g, ' ').trim();
+
+    html += '<tr>';
+    html += '<td style="font-family:var(--font-mono);font-size:11px">' + year + '</td>';
+    html += '<td>' + month + '</td>';
+    html += '<td style="font-family:var(--font-mono);font-size:11px;text-align:right">' + fmtN(sumTotal) + '</td>';
+    html += '<td style="font-family:var(--font-mono);font-size:11px;text-align:right">' + fmtN(costTotal) + '</td>';
+    html += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + e(r['Title'] || r['Quote Title'] || '') + '">' + e(r['Title'] || r['Quote Title'] || '') + '</td>';
+    html += '<td style="font-size:11px">' + e(r['Entity'] || '') + '</td>';
+    html += '<td style="font-size:11px">' + e(r['Axess Product'] || '') + '</td>';
+    html += '<td>' + e(r['Installation'] || '') + '</td>';
+    html += '<td>' + e(r['Customer'] || '') + '</td>';
+    html += '<td>' + e(r['Status'] || '') + '</td>';
+    html += '<td>' + e(resp) + '</td>';
+    html += '</tr>';
+  });
+
+  // Totals row
+  html += '<tr style="font-weight:700;background:var(--bg-2)">';
+  html += '<td colspan="2" style="text-align:right">TOTAL</td>';
+  html += '<td style="font-family:var(--font-mono);font-size:11px;text-align:right">' + fmtN(totalRev) + '</td>';
+  html += '<td style="font-family:var(--font-mono);font-size:11px;text-align:right">' + fmtN(totalCost) + '</td>';
+  html += '<td colspan="7"></td>';
+  html += '</tr>';
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeQuoteDrilldown() {
+  document.getElementById('quote-drilldown').style.display = 'none';
+  document.getElementById('quote-drilldown').innerHTML = '';
+  document.getElementById('charts-quote').style.display = '';
 }
 
 // ─── PERSONNEL TAB ───
