@@ -730,6 +730,8 @@ function updateChartsTheme() {
     tooltip: { theme: dk ? 'dark' : 'light' }
   };
   Object.values(charts).forEach(c => { if (c && c.updateOptions) c.updateOptions(opts, false, false); });
+  // Re-render leads tab to update dataLabel colors that depend on theme
+  if (activeTab === 'leads') renderLeads();
 }
 (function initTheme() {
   const saved = localStorage.getItem('axess-theme');
