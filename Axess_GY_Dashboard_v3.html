@@ -562,6 +562,7 @@ select.filter-input{appearance:none;background-image:url("data:image/svg+xml,%3C
     <!-- ═══════ TAB 5: LEADS LOG ═══════ -->
     <div class="tab-panel" id="panel-leads" role="tabpanel" aria-label="Leads Log">
       <div class="filters-bar" id="filters-leads">
+        <div class="filter-group"><label for="l-year">Year</label><select class="filter-input" id="l-year" onchange="onYearFilter('leads')"><option value="">All</option></select></div>
         <div class="filter-group"><label for="l-from">From</label><input type="date" class="filter-input" id="l-from" onchange="applyFilters('leads')"></div>
         <div class="filter-group"><label for="l-to">To</label><input type="date" class="filter-input" id="l-to" onchange="applyFilters('leads')"></div>
         <div class="filter-group"><label for="l-status">Status</label><select class="filter-input" id="l-status" onchange="applyFilters('leads')"><option value="">All</option></select></div>
@@ -1169,6 +1170,8 @@ function populateFilters(type) {
     populateSelect('m-responsible', [...new Set(raw.map(getR))].filter(Boolean).sort());
     populateSelect('m-period', unique(raw, 'PERIOD'));
   } else if (type === 'leads') {
+    const years = [...new Set(raw.map(r => { const d = excelDate(r['Created']) || parseDate(r['Created']); return d ? d.getFullYear() : null; }).filter(Boolean))].sort((a, b) => b - a);
+    populateSelect('l-year', years.map(String));
     populateSelect('l-status', unique(raw, 'Status'));
     populateSelect('l-responsible', unique(raw, 'Responsible'));
     populateSelect('l-entity', unique(raw, 'Entity'));
@@ -1265,6 +1268,16 @@ function onYearFilter(type) {
       document.getElementById('q-to').value = '';
     }
     applyFilters('quote');
+  } else if (type === 'leads') {
+    const year = document.getElementById('l-year').value;
+    if (year) {
+      document.getElementById('l-from').value = year + '-01-01';
+      document.getElementById('l-to').value = year + '-12-31';
+    } else {
+      document.getElementById('l-from').value = '';
+      document.getElementById('l-to').value = '';
+    }
+    applyFilters('leads');
   }
 }
 
@@ -1299,6 +1312,7 @@ function resetFilters(type) {
     document.getElementById('m-responsible').value = '';
     document.getElementById('m-period').value = '';
   } else if (type === 'leads') {
+    document.getElementById('l-year').value = '';
     document.getElementById('l-from').value = '';
     document.getElementById('l-to').value = '';
     document.getElementById('l-status').value = '';
@@ -1882,7 +1896,7 @@ function showQuoteDrilldown(bucketKey) {
 
   html += '<div style="overflow-x:auto;border-radius:var(--r);border:1px solid var(--glass-border);box-shadow:var(--sh)">';
   html += '<table class="equip-table" style="min-width:1000px"><thead><tr>';
-  html += '<th>Year</th><th>Month</th><th>Sum Total</th><th>Cost Sum Total</th><th>Title</th><th>Entity</th><th>Axess Product</th><th>Installation</th><th>Customer</th><th>Status</th><th>Responsible</th>';
+  html += '<th>Year</th><th>Month</th><th>Sum Total</th><th>Cost Sum Total</th><th>Title</th><th>Entity</th><th>Axess Product</th><th>Scope</th><th>Installation</th><th>Customer</th><th>Status</th><th>Responsible</th>';
   html += '</tr></thead><tbody>';
 
   sorted.forEach(r => {
@@ -1901,6 +1915,7 @@ function showQuoteDrilldown(bucketKey) {
     html += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + e(r['Title'] || r['Quote Title'] || '') + '">' + e(r['Title'] || r['Quote Title'] || '') + '</td>';
     html += '<td style="font-size:11px">' + e(r['Entity'] || '') + '</td>';
     html += '<td style="font-size:11px">' + e(r['Axess Product'] || '') + '</td>';
+    html += '<td style="font-size:11px">' + e(r['Scope'] || r['Segment'] || '') + '</td>';
     html += '<td>' + e(r['Installation'] || '') + '</td>';
     html += '<td>' + e(r['Customer'] || '') + '</td>';
     html += '<td>' + e(r['Status'] || '') + '</td>';
@@ -1913,7 +1928,7 @@ function showQuoteDrilldown(bucketKey) {
   html += '<td colspan="2" style="text-align:right">TOTAL</td>';
   html += '<td style="font-family:var(--font-mono);font-size:11px;text-align:right">' + fmtN(totalRev) + '</td>';
   html += '<td style="font-family:var(--font-mono);font-size:11px;text-align:right">' + fmtN(totalCost) + '</td>';
-  html += '<td colspan="7"></td>';
+  html += '<td colspan="8"></td>';
   html += '</tr>';
 
   html += '</tbody></table></div>';
@@ -3639,11 +3654,73 @@ function renderLeads() {
     tooltip: { y: { formatter: (v, { seriesIndex }) => v + ' leads (' + (total > 0 ? (v / total * 100).toFixed(1) : 0) + '%)' } }
   };
 
-  buildChartGrid('charts-leads', [
+  // Chart 4: Top Entities (treemap)
+  const entGroup = {};
+  d.forEach(r => { const s = (r['Entity'] || '').toString().trim() || '(No entity)'; entGroup[s] = (entGroup[s] || 0) + 1; });
+  const entEntries = Object.entries(entGroup).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const entOpts = {
+    chart: { type: 'treemap', height: 320 },
+    series: [{ data: entEntries.map((e, i) => ({ x: e[0], y: e[1] })) }],
+    colors: COLORS.slice(2, 2 + entEntries.length),
+    plotOptions: { treemap: { distributed: true, enableShades: false } },
+    dataLabels: { enabled: true, style: { fontSize: '12px', fontWeight: 600 }, formatter: function(text, op) { return text + '\n' + op.value; } },
+    legend: { show: false },
+    tooltip: { y: { formatter: v => v + ' leads' } }
+  };
+
+  // Chart 5: Leads Timeline (area chart by Created date)
+  const tlBuckets = {};
+  d.forEach(r => {
+    const dt = excelDate(r['Created']) || parseDate(r['Created']);
+    if (!dt) return;
+    const k = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
+    tlBuckets[k] = (tlBuckets[k] || 0) + 1;
+  });
+  const tlKeys = Object.keys(tlBuckets).sort();
+  const timelineOpts = {
+    chart: { type: 'area', height: 280, zoom: { enabled: true, type: 'x' } },
+    series: [{ name: 'Leads', data: tlKeys.map(k => tlBuckets[k]) }],
+    colors: ['#009aa6'],
+    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } },
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: 2.5 },
+    xaxis: { categories: tlKeys, labels: { rotate: -45, style: { fontSize: '10px' } } },
+    yaxis: { labels: { formatter: v => fmt(v) } },
+    markers: { size: 0, hover: { size: 5 } },
+    tooltip: { y: { formatter: v => v + ' leads' } }
+  };
+
+  // Chart 6: Leads by Responsible (vertical bar, only when Entity filter is active)
+  const entityFilter = document.getElementById('l-entity').value;
+  let respChartDef = null;
+  if (entityFilter) {
+    const respGroup = {};
+    d.forEach(r => { const s = (r['Responsible'] || '').toString().trim() || '(No responsible)'; respGroup[s] = (respGroup[s] || 0) + 1; });
+    const respEntries = Object.entries(respGroup).sort((a, b) => b[1] - a[1]).slice(0, 12);
+    const respOpts = {
+      chart: { type: 'bar', height: 280 },
+      series: [{ name: 'Leads', data: respEntries.map(e => e[1]) }],
+      plotOptions: { bar: { borderRadius: 5, columnWidth: '55%', distributed: true } },
+      colors: COLORS,
+      xaxis: { categories: respEntries.map(e => e[0]), labels: { rotate: -45, rotateAlways: respEntries.length > 5, style: { fontSize: '10px' } } },
+      yaxis: { labels: { formatter: v => fmt(v) } },
+      dataLabels: { enabled: true, offsetY: -20, style: { fontSize: '11px', fontWeight: '600', colors: [document.documentElement.getAttribute('data-theme') === 'dark' ? '#e5e7eb' : '#111827'] } },
+      legend: { show: false },
+      grid: { xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
+      tooltip: { y: { formatter: v => v + ' leads' } }
+    };
+    respChartDef = { id: 'c-l-responsible', title: 'Leads by Responsible', tag: entityFilter, options: respOpts };
+  }
+
+  const chartDefs = [
     { id: 'c-l-status', title: 'Leads by Status', tag: 'count', options: statusOpts },
     { id: 'c-l-service', title: 'Leads by Service', tag: '% share', options: svcOpts },
-    { id: 'c-l-segment', title: 'Leads by Segment', tag: '% share', options: segOpts }
-  ]);
+    { id: 'c-l-segment', title: 'Leads by Segment', tag: '% share', options: segOpts },
+    { id: 'c-l-entities', title: 'Top Entities', tag: 'by lead count', options: entOpts },
+    { id: 'c-l-timeline', title: 'Leads Timeline', tag: 'by Created date', options: timelineOpts, wide: true }
+  ];
+  if (respChartDef) chartDefs.splice(3, 0, respChartDef);
+  buildChartGrid('charts-leads', chartDefs);
 
   leadsPage = 1;
   renderLeadsTable(d);
