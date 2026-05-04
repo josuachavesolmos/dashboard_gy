@@ -24,14 +24,12 @@ async function switchTabV4(page, tab) {
 }
 
 test.describe('V4 — Todo Win Rate + grupos Quote', () => {
-  test('Win Rate KPI: subtítulo indica numerador filtrado y denominador archivo', async ({ page }) => {
+  test('Win Rate KPI: accepted / total coincide con vista filtrada (quotes in view)', async ({ page }) => {
     await openV4(page);
     const card = page.locator('#kpi-quote .kpi-card').filter({ hasText: 'Win Rate' });
-    await expect(card.locator('.kpi-sub')).toContainText(/quotes in file/i);
-    await expect(card.locator('.kpi-sub')).toContainText(/filtered/i);
+    await expect(card.locator('.kpi-sub')).toContainText(/quotes in view/i);
     const subText = await card.locator('.kpi-sub').textContent();
-    expect(subText).toMatch(/\d+\s+accepted\s*\(filtered\)/i);
-    expect(subText).toMatch(/\d+\s+quotes in file/i);
+    expect(subText).toMatch(/\d+\s+accepted\s*\/\s*\d+\s+quotes in view/i);
   });
 
   test('Gráfico Win Rate by Segment existe', async ({ page }) => {

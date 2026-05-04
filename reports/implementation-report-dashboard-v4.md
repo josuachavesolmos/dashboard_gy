@@ -13,7 +13,7 @@
 
 | To-do (plan) | Caso de prueba (archivo) | Qué valida | Estado |
 |--------------|---------------------------|------------|--------|
-| Win Rate KPI + gráfico por segmento | `Win Rate KPI: subtítulo indica…` | Subtítulo con “filtered” y “quotes in file”; fórmula documentada en UI | OK |
+| Win Rate KPI + gráfico por segmento | `Win Rate KPI: subtítulo indica…` | Subtítulo `accepted / N quotes in view`; denominador = mismos filtros que la tabla | OK |
 | (mismo) | `Gráfico Win Rate by Segment existe` | Existe contenedor `#c-q-wrseg` | OK |
 | Group by (Quote) | `Quote Group by: control y tabla…` | Select `#q-groupby` + bloque `Grouped summary` al agrupar por Segment | OK |
 | Gantt + Desglose | `Desglose Gantt: checkbox desactivado…` | Personnel → Gantt: input Desglose en DOM, no marcado | OK |
@@ -28,7 +28,7 @@
 ## Pruebas manuales recomendadas (no cubiertas en E2E)
 
 1. **Carga de Excel reales** (Order Backlog, Personnel, Master) y comprobación de que columnas `QA Status` / `Invoice Status` se reflejan en donas y tabla.
-2. **Win Rate** con filtros de año y status: confirmar con negocio que el denominador sigue siendo el total de filas del archivo cargado.
+2. **Win Rate** con filtros de año y status: el denominador es el **total de cotizaciones en la vista filtrada** (coherente con “Total Quotes”).
 3. **Desglose** activado: ver filas installation/scope y colapso coherente.
 4. **Impresión / export** (si aplica) y **rendimiento** con archivos &gt; 5k filas.
 

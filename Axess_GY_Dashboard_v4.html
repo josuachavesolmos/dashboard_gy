@@ -1468,13 +1468,13 @@ function renderQuote() {
   const d = state.quote.filtered;
   const dDateOnly = getDateFilteredQuotes();
   const total = d.length;
-  const rawQuoteTotal = state.quote.raw.length;
   const totalDateOnly = dDateOnly.length;
   const rev = sumBy(d, 'Sum Total');
   const weighted = sumBy(d, 'Cost Sum Total');
   const cmr = avgBy(d, 'CMR Total');
   const acc = d.filter(r => r['Status'] === 'Accepted').length;
-  const wr = rawQuoteTotal > 0 ? (acc / rawQuoteTotal * 100) : 0;
+  // Win Rate: mismo alcance que filtros (fecha, status, etc.) — accepted / total quotes en vista
+  const wr = total > 0 ? (acc / total * 100) : 0;
 
   // Target card: show when filtering year 2026 + status Accepted
   const BUDGET_TARGET = 7665956;
@@ -1497,7 +1497,7 @@ function renderQuote() {
     ...(targetCard ? [targetCard] : []),
     { label: 'Total Cost', value: weighted, format: 'cur', sub: 'Cost sum total', accent: 'var(--info)' },
     { label: 'Avg CMR', value: cmr, format: 'pct', sub: 'Contribution margin', accent: 'var(--warning)' },
-    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' accepted (filtered) / ' + rawQuoteTotal + ' quotes in file', accent: 'var(--warm)' }
+    { label: 'Win Rate', value: wr, format: 'pct', sub: acc + ' accepted / ' + total + ' quotes in view', accent: 'var(--warm)' }
   ];
   renderKPIs('kpi-quote', kpis);
 
